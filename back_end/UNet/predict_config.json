@@ -1,0 +1,9 @@
+{   
+    "num_classes": 2,
+    "pre_dir": "G:\\Hod\\UNet_lungCT_segmentation-master\\predict2",
+    "img_txt": "G:\\Hod\\UNet_lungCT_segmentation-master\\data\\CT_txt\\test.txt",
+    "save_model": {
+        "save": true,
+        "save_path": "saved2/"
+    }
+}

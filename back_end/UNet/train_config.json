@@ -1,0 +1,16 @@
+{   
+    "num_classes": 2,
+    "batch_size": 2,
+    "num_epoch": 150,
+    "lr": 0.00001,
+    "weight_decay": 1e-4,
+    "momentum": 0.95,
+    "train_list": "G:\\Hod\\UNet_lungCT_segmentation-master\\data\\CT_txt\\train.txt",
+    "test_list": "G:\\Hod\\UNet_lungCT_segmentation-master\\data\\CT_txt\\test.txt",
+    "summary_path": "G:\\Hod\\UNet_lungCT_segmentation-master\\runs2",
+
+    "save_model": {
+        "save": true,
+        "save_path": "saved2/"
+    }
+}

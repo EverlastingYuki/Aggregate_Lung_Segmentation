@@ -1,0 +1,9 @@
+{
+    "num_classes": 2,
+    "pre_dir": "static/result/Unet",
+    "img_txt": "back_end/UNet/txt/test.txt",
+    "save_model": {
+        "save": true,
+        "save_path": "back_end/UNet/saved2"
+    }
+}

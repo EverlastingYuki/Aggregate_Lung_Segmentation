@@ -1,0 +1,3 @@
+G:\Hod\Aggregate_Lung_Segmentation\static\uploaded\one_channel\ID_0190_Z_0070.tif	null
+G:\Hod\Aggregate_Lung_Segmentation\static\uploaded\one_channel\ID_0188_Z_0137.tif	null
+G:\Hod\Aggregate_Lung_Segmentation\static\uploaded\one_channel\ID_0189_Z_0132.tif	null
