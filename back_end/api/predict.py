@@ -10,14 +10,14 @@ import matplotlib.pyplot as plt
 from back_end.predict.Unet import predict_Unet
 # from back_end.predict.WeClip import predict_WeClip
 from back_end.predict.deeplab import predict_deeplab
-from back_end.predict.WeClip import predict_WeClip
+# from back_end.predict.WeClip import predict_WeClip
 from flask import Flask, redirect, render_template, request, jsonify, send_from_directory
 from flask_cors import CORS
 from PIL import Image
+from back_end.api import api
+import yaml
 
-app = Flask(__name__)
 
-cors = CORS(app, resources={r"/test/*": {"origins": "*"}})
 
 # 项目根目录
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -42,7 +42,7 @@ WECIP_DIR = os.path.join(RESULT_DIR, 'WeClip')
 # UNET_RGB_DIR = os.path.join(STATIC_DIR, 'Unet_RGB_img')
 
 
-@app.route("/upload", methods=["POST"])
+@api.route("upload", methods=["POST"])
 def upload():
     if 'file' not in request.files:
         return jsonify({'error': 'No file part in the request'}), 400
@@ -58,20 +58,19 @@ def upload():
     if len(image.split()) == 1:
         print(file.filename + "为单通道图片，保存三通道副本到three_channel")
         shutil.copy2(original_img_path, one_channel_path)
-        # file.save(one_channel_path)
+
         img_gray = cv2.imread(original_img_path, cv2.IMREAD_GRAYSCALE)
         img_rgb = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
         cv2.imwrite(three_channel_path, img_rgb)
     else:
         print(file.filename + "为三通道图片，保存单通道副本到one_channel")
         shutil.copy2(original_img_path, three_channel_path)
-        # file.save(three_channel_path)
         img = cv2.imread(original_img_path, cv2.IMREAD_GRAYSCALE)  # 读取灰度图
         cv2.imwrite(one_channel_path, img)
     return jsonify({'message': 'File uploaded successfully'}), 200
 
 
-@app.route("/clear", methods=["GET"])
+@api.route("clear", methods=["GET"])
 def clear():
     try:
         shutil.rmtree(DEEPLAB_DIR)
@@ -91,7 +90,7 @@ def clear():
     return "0"
 
 
-@app.route("/start", methods=["POST"])
+@api.route("start", methods=["POST"])
 def start():
     data = request.json
     image_path = data.get('image_url')
@@ -102,27 +101,28 @@ def start():
     if 'Unet' in models:
         predict_Unet(PROJECT_ROOT, ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, UNET_DIR)
         print("Unet predict finish")
-    if 'WeClip' in models:
-        predict_WeClip(PROJECT_ROOT, ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, WECIP_DIR)
-        print("WeClip predict finish")
+    # if 'WeClip' in models:
+    #     predict_WeClip(PROJECT_ROOT, ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, WECIP_DIR)
+    #     print("WeClip predict finish")
 
     unet_images = os.listdir(UNET_DIR)
     deeplab_images = os.listdir(DEEPLAB_DIR)
-    weclip_images = os.listdir(WECIP_DIR)
+    # weclip_images = os.listdir(WECIP_DIR)
 
     unet_image_urls = [f'./static/result/Unet/{image}' for image in unet_images]
     deeplab_image_urls = [f'./static/result/deeplab/{image}' for image in deeplab_images]
-    weclip_image_urls = [f'./static/result/WeClip/{image}' for image in weclip_images]
+    # weclip_image_urls = [f'./static/result/WeClip/{image}' for image in weclip_images]
 
     response_data = {
         "Unet": unet_image_urls,
         "deeplab": deeplab_image_urls,
-        "WeClip": weclip_image_urls
+        # "WeClip": weclip_image_urls
     }
 
     return jsonify(response_data)
 
-@app.route('/static/result/<model_name>/<path:filename>', methods=['GET'])
+
+@api.route('static/result/<model_name>/<path:filename>', methods=['GET'])
 def send_image(model_name, filename):
     if model_name == 'U-net':
         return send_from_directory(UNET_DIR, filename)
@@ -132,5 +132,3 @@ def send_image(model_name, filename):
         return send_from_directory(WECIP_DIR, filename)
     else:
         return "Invalid model name", 404
-
-app.run(port = 5000)
