@@ -82,13 +82,22 @@ def predict(config, Unet_dir):
             translabeltovisual(mask_im, save_visual)
 
 
-
 def translabeltovisual(mask_im, path):
-    visual_img = np.where(mask_im == 1, 255, 0).astype(np.uint8)
-    visual_img = visual_img.reshape((Height, Width))
-    visual_img = cv2.cvtColor(visual_img, cv2.COLOR_GRAY2RGB)
+    # 将白色部分（值为 255）改为绿色（值为 [0, 255, 0]）
+    visual_img = np.zeros((Height, Width, 3), dtype=np.uint8)
+    visual_img[mask_im == 1] = [0, 255, 0]  # 绿色
+    visual_img[mask_im == 0] = [0, 0, 0]  # 黑色
+
     cv2.imwrite(path, visual_img)
-    print('保存路径：'+path)
+    print('保存路径：' + path)
+
+
+# def translabeltovisual(mask_im, path):
+#     visual_img = np.where(mask_im == 1, 255, 0).astype(np.uint8)
+#     visual_img = visual_img.reshape((Height, Width))
+#     visual_img = cv2.cvtColor(visual_img, cv2.COLOR_GRAY2RGB)
+#     cv2.imwrite(path, visual_img)
+#     print('保存路径：'+path)
 
 #
 # if __name__ == "__main__":

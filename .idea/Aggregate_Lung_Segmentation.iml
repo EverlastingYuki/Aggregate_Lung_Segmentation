@@ -12,7 +12,7 @@
       <excludeFolder url="file://$MODULE_DIR$/static/uploaded/original" />
       <excludeFolder url="file://$MODULE_DIR$/static/uploaded/three_channel" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Unet (2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyNamespacePackagesService">

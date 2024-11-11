@@ -85,9 +85,10 @@ def translabeltovisual(save_label, path):
     visual_img = visual_img.reshape((Height, Width))
     # cv2.imwrite(path, visual_img)
     # 单通道转三通道
-
     visual_img = cv2.cvtColor(visual_img, cv2.COLOR_GRAY2RGB)
     cv2.imwrite(path, visual_img)
+
+
 
 if __name__ == "__main__":
     with open('predict_config.json', encoding='utf-8') as f:

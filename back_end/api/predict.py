@@ -18,7 +18,6 @@ from back_end.api import api
 import yaml
 
 
-
 # 项目根目录
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -35,7 +34,38 @@ THREE_CHANNEL_DIR = os.path.join(UPLOADED_DIR, 'three_channel')
 RESULT_DIR = os.path.join(STATIC_DIR, 'result')
 DEEPLAB_DIR = os.path.join(RESULT_DIR, 'deeplab')
 UNET_DIR = os.path.join(RESULT_DIR, 'Unet')
-WECIP_DIR = os.path.join(RESULT_DIR, 'WeClip')
+WECLIP_DIR = os.path.join(RESULT_DIR, 'WeClip')
+
+
+def post_process_image(input_path, output_path, alpha=128):
+    """
+    后处理函数，使图像中黑色部分变为纯透明，黑色以外的部分变为半透明。
+
+    :param input_path: 输入图像路径
+    :param output_path: 输出图像路径
+    :param alpha: 黑色以外部分的透明度（0-255）
+    """
+    # 读取图像
+    image = cv2.imread(input_path, cv2.IMREAD_COLOR)
+
+    # 获取图像的形状
+    height, width, _ = image.shape
+
+    # 创建透明通道
+    alpha_channel = np.zeros((height, width), dtype=np.uint8)
+
+    # 设置黑色部分为纯透明，其他部分为半透明
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    alpha_channel[gray_image == 0] = 0  # 黑色部分透明
+    alpha_channel[gray_image != 0] = alpha  # 其他部分半透明
+
+    # 合并为四通道图像
+    image_rgba = cv2.cvtColor(image, cv2.COLOR_BGR2BGRA)
+    image_rgba[:, :, 3] = alpha_channel
+
+    # 保存图像
+    cv2.imwrite(output_path, image_rgba)
+
 
 # # 定义预测结果目录
 # UNET_PREDICT_DIR = os.path.join(STATIC_DIR, 'Unet_predict_result', 'predict_unet', 'vis')
@@ -75,7 +105,7 @@ def clear():
     try:
         shutil.rmtree(DEEPLAB_DIR)
         shutil.rmtree(UNET_DIR)
-        shutil.rmtree(WECIP_DIR)
+        shutil.rmtree(WECLIP_DIR)
         shutil.rmtree(ONE_CHANNEL_DIR)
         shutil.rmtree(THREE_CHANNEL_DIR)
         shutil.rmtree(ORIGINAL_DIR)
@@ -83,7 +113,7 @@ def clear():
         pass
     os.makedirs(DEEPLAB_DIR, exist_ok=True)
     os.makedirs(UNET_DIR, exist_ok=True)
-    os.makedirs(WECIP_DIR, exist_ok=True)
+    os.makedirs(WECLIP_DIR, exist_ok=True)
     os.makedirs(ONE_CHANNEL_DIR, exist_ok=True)
     os.makedirs(THREE_CHANNEL_DIR, exist_ok=True)
     os.makedirs(ORIGINAL_DIR, exist_ok=True)
@@ -102,12 +132,15 @@ def start():
         predict_Unet(PROJECT_ROOT, ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, UNET_DIR)
         print("Unet predict finish")
     # if 'WeClip' in models:
-    #     predict_WeClip(PROJECT_ROOT, ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, WECIP_DIR)
+    #     predict_WeClip(PROJECT_ROOT, ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, WECLIP_DIR)
     #     print("WeClip predict finish")
-
+    for i in [DEEPLAB_DIR, UNET_DIR, WECLIP_DIR]:
+        for image in os.listdir(i):
+            path = os.path.join(i, image)
+            post_process_image(input_path=path, output_path=path)
     unet_images = os.listdir(UNET_DIR)
     deeplab_images = os.listdir(DEEPLAB_DIR)
-    # weclip_images = os.listdir(WECIP_DIR)
+    # weclip_images = os.listdir(WECLIP_DIR)
 
     unet_image_urls = [f'./static/result/Unet/{image}' for image in unet_images]
     deeplab_image_urls = [f'./static/result/deeplab/{image}' for image in deeplab_images]
@@ -129,6 +162,6 @@ def send_image(model_name, filename):
     elif model_name == 'DeepLab':
         return send_from_directory(DEEPLAB_DIR, filename)
     elif model_name == 'WeClip':
-        return send_from_directory(WECIP_DIR, filename)
+        return send_from_directory(WECLIP_DIR, filename)
     else:
         return "Invalid model name", 404
