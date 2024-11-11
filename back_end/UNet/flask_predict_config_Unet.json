@@ -4,6 +4,6 @@
     "img_txt": "back_end/UNet/txt/test.txt",
     "save_model": {
         "save": true,
-        "save_path": "back_end/UNet/saved2"
+        "save_path": "back_end/models/UNet"
     }
 }
