@@ -1,3 +1,5 @@
+import os
+
 from flask import Blueprint
 import yaml
 
@@ -9,6 +11,7 @@ with open('back_end/config.yaml', 'r') as file:
 
 # 从配置文件中读取路径
 STATIC_DIR = config['static_dir']
+PROJECT_ROOT = os.path.join(os.path.dirname(__file__), '../..')
 
 UPLOADED_DIR = config['uploaded_dir']
 ORIGINAL_DIR = config['original_dir']

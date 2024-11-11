@@ -74,11 +74,11 @@ def start():
     image_path = data.get('image_url')
     models = data.get('models')
     if 'DeepLab' in models:
-        predict_deeplab(ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, DEEPLAB_DIR)
+        predict_deeplab(PROJECT_ROOT, ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, DEEPLAB_DIR)
     if 'U-net' in models:
-        predict_Unet(ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, UNET_DIR)
+        predict_Unet(PROJECT_ROOT, ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, UNET_DIR)
     if 'WeClip' in models:
-        predict_WeClip(ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, UNET_DIR)
+        predict_WeClip(PROJECT_ROOT, ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, UNET_DIR)
     # for i in [DEEPLAB_DIR, UNET_DIR, WECLIP_DIR]:
     #     for image in os.listdir(i):
     #         path = os.path.join(i, image)

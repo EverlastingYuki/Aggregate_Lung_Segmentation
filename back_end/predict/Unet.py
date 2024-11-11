@@ -27,11 +27,11 @@ def predict_Unet(project_root, one_channel_dir, three_channel_dir, Unet_dir):
     print('Unet_dir：' + Unet_dir)
 
     try:
-        shutil.rmtree(os.path.join(project_root, "static", "result", "Unet"))
+        shutil.rmtree(Unet_dir)
         os.remove(os.path.join(project_root, "back_end", "UNet", "txt", "test.txt"))
     except:
         pass
-    os.makedirs(os.path.join(project_root, "static", "result", "Unet"), exist_ok=True)
+    os.makedirs(Unet_dir, exist_ok=True)
 
     img_test = walk_dir(one_channel_dir)
     with open(os.path.join(project_root, "back_end", "UNet", "txt", "test.txt"), 'w') as f:
