@@ -17,7 +17,8 @@ from PIL import Image
 from back_end.api import *
 import yaml
 
-from back_end.util.postProcess import post_process_image
+from back_end.util.clear_results import clear_results
+from back_end.util.post_process import post_process_image
 
 
 
@@ -73,6 +74,7 @@ def start():
     data = request.json
     image_path = data.get('image_url')
     models = data.get('models')
+    clear_results()
     if 'DeepLab' in models:
         predict_deeplab(PROJECT_ROOT, ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, DEEPLAB_DIR)
     if 'U-net' in models:
