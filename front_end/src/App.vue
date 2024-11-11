@@ -92,7 +92,9 @@ const handleChange = (file: any) => {
   }).then((response) => {
     if (response.status === 200) {
       handleAvatarSuccess(response.data)
+      // console.log(response.data)
       imageUrl.value = URL.createObjectURL(file.raw)
+      console.log(imageUrl.value)
       // uped_img_local_path.value = response.data.file_path
       //回传本地图片的路径 
     } else {
@@ -164,12 +166,13 @@ const startInference = async () => {
     if (response.status === 200) {
       ElMessage.success('推理完成')
       // pre_result_img_urls.value = response.data.result_images
-
+      console.log(response.data)
       pre_result_img_urls.value = [
         ...response.data.Unet,
         ...response.data.deeplab,
         ...response.data.WeClip
       ]
+      console.log("?")
       console.log(pre_result_img_urls.value)
       setListLength(pre_result_img_urls.value)
     } else {
@@ -183,9 +186,9 @@ const startInference = async () => {
 }
 
 // 初始化时获取模型名称列表
-onMounted(() => {
-  fetchModels()
-})
+// onMounted(() => {
+//   fetchModels()
+// })
 
 
 </script>
