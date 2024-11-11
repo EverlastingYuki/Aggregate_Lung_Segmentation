@@ -21,7 +21,9 @@ from back_end.util.postProcess import post_process_image
 
 # 项目根目录
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-
+PROJECT_ROOT = os.path.dirname(PROJECT_ROOT)
+PROJECT_ROOT = os.path.dirname(PROJECT_ROOT)
+PROJECT_ROOT = os.path.join(PROJECT_ROOT, 'front_end')
 # static目录
 STATIC_DIR = os.path.join(PROJECT_ROOT, 'static')
 
