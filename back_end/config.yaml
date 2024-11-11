@@ -1,0 +1,15 @@
+project_root: front_end
+static_dir: front_end/static
+
+uploaded_dir: front_end/static/uploaded
+original_dir: front_end/static/uploaded/original
+one_channel_dir: front_end/static/uploaded/one_channel
+three_channel_dir: front_end/static/uploaded/three_channel
+
+result_dir: front_end/static/result
+deeplab_dir: front_end/static/result/deeplab
+Unet_dir: front_end/static/result/Unet
+WeClip_dir: front_end/static/result/WeClip
+
+#叠加显示后的图片
+overlay_dir: front_end/static/result/overlay
