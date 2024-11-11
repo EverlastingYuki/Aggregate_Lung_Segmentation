@@ -177,3 +177,6 @@ cython_debug/
 /back_end/models/
 /front_end/static/uploaded/
 /front_end/static/result/
+/back_end/WeClip/results/
+/back_end/WeClip/voc_data/
+/front_end/node_modules/

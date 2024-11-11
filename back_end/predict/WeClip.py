@@ -16,7 +16,7 @@ def predict_WeClip(project_root, one_channel_dir, three_channel_dir, WeClip_dir)
         config = yaml.safe_load(file)
     config['dataset']['root_dir'] = os.path.join(project_root, r'back_end\WeClip\voc_data')
     config['dataset']['name_list_dir'] = os.path.join(project_root, r'back_end\WeClip\datasets\voc')
-    config["clip_init"]["clip_pretrain_path"] = os.path.join(project_root, r'back_end\WeClip\clip_model\ViT-B-16.pt')
+    config["clip_init"]["clip_pretrain_path"] = os.path.join(project_root, r'back_end/models/WeClip/ViT-B-16.pt')
     with open(weclip_config_path, 'w', encoding='utf-8') as file:
         yaml.safe_dump(config, file, default_flow_style=False)
 
@@ -46,7 +46,7 @@ def predict_WeClip(project_root, one_channel_dir, three_channel_dir, WeClip_dir)
             file.write(file_name + '\n')
 
     inference_py_path = os.path.join(project_root, r'back_end\WeClip\inference.py')
-    model_path = os.path.join(project_root, r'back_end\WeClip\test.pth')
+    model_path = os.path.join(project_root, r'back_end/models/WeClip/test.pth')
 
     command = "C:/Users/q/.conda/envs/py38/python.exe " + inference_py_path + " --config " + weclip_config_path + " --model_path " + model_path
     print(command)
