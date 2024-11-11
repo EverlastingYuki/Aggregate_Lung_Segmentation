@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>预测结果</title>
+    <link href="//unpkg.com/layui@2.9.18/dist/css/layui.css" rel="stylesheet">
+    <script src="//unpkg.com/layui@2.9.18/dist/layui.js"></script>
+</head>
+<body>
+<div class="layui-panel">
+    <div style="padding: 32px;">
+        <div class="layui-container">
+            {% for source,result in image_urls.items() %}
+            <div class="layui-row">
+                <div class="layui-col-md6">
+                    <div class="layui-panel">
+                        <img src="{{ url_for('static', filename='' + source) }}"
+                             onclick='previewImg(this)'/>
+                    </div>
+                </div>
+                <div class="layui-col-md6">
+                    <div class="layui-panel">
+                        <img src="{{ url_for('static', filename='' + result) }}"
+                             onclick='previewImg(this)'/>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    function previewImg(obj) {
+        var img = new Image();
+        img.src = obj.src;
+        var height = img.height; //获取图片高度
+        var width = img.width; //获取图片宽度
+        if (height > 1000 || width > 800) {
+            height = height / 1.5;
+            width = width / 1.5;
+        }
+        var imgHtml = "<img src='" + obj.src + "' style='width: " + width + "px;height:" + height + "px'/>";
+        //弹出层
+        layer.open({
+            type: 1,
+            offset: 'auto',
+            area: [width + 'px', height + 'px'],
+            shadeClose: true,//点击外围关闭弹窗
+            scrollbar: true,//不现实滚动条
+            title: false, //不显示标题
+            content: imgHtml, //捕获的元素，注意：最好该指定的元素要存放在body最外层，否则可能被其它的相对元素所影响
+            cancel: function () {
+
+            }
+        });
+    }
+</script>
+</html>
