@@ -3,6 +3,7 @@ import shutil
 
 import cv2
 
+from back_end.api.predict import post_process_image
 from back_end.predict.Unet import predict_Unet
 # from back_end.predict.WeClip import predict_WeClip
 from back_end.predict.deeplab import predict_deeplab
@@ -55,5 +56,8 @@ def process_images():
 
 process_images()
 # predict_deeplab(PROJECT_ROOT, ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, DEEPLAB_DIR)
-# predict_Unet(project_root= PROJECT_ROOT, one_channel_dir= ONE_CHANNEL_DIR, three_channel_dir= THREE_CHANNEL_DIR, Unet_dir=UNET_DIR)
+predict_Unet(project_root=PROJECT_ROOT, one_channel_dir=ONE_CHANNEL_DIR, three_channel_dir= THREE_CHANNEL_DIR, Unet_dir=UNET_DIR)
 # predict_WeClip(PROJECT_ROOT, ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, WECIP_DIR)
+for image in os.listdir(UNET_DIR):
+    path = os.path.join(UNET_DIR, image)
+    post_process_image(input_path=path, output_path=path)
