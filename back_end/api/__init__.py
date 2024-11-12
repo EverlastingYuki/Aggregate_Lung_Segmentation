@@ -6,7 +6,7 @@ import yaml
 api = Blueprint('api', __name__, url_prefix='/api')
 
 # 读取配置文件
-with open('back_end/config.yaml', 'r') as file:
+with open('back_end/config.yaml', 'r', encoding='utf-8') as file:
     config = yaml.safe_load(file)
 
 # 从配置文件中读取路径
@@ -24,8 +24,9 @@ UNET_DIR = config['Unet_dir']
 WECLIP_DIR = config['WeClip_dir']
 OVERLAY_DIR = config['overlay_dir']
 
+WORKSPACE_PATH = config['workspace_path']
 
 
 # import写在最后防止循环导入
 from back_end.api import predict
-from back_end.api import workplace
+from back_end.api import workspace

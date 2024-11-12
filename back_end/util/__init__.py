@@ -1,6 +1,6 @@
 import yaml
 
-with open('back_end/config.yaml', 'r') as file:
+with open('back_end/config.yaml', 'r', encoding='utf-8') as file:
     config = yaml.safe_load(file)
 
 STATIC_DIR = config['static_dir']

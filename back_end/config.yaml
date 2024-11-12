@@ -11,5 +11,8 @@ deeplab_dir: front_end/static/result/deeplab
 Unet_dir: front_end/static/result/Unet
 WeClip_dir: front_end/static/result/WeClip
 
+#工作区
+workspace_path: "back_end/workplace.json"
+
 #叠加显示后的图片
 overlay_dir: front_end/static/result/overlay
