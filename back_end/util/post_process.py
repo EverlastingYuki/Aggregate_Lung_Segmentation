@@ -4,6 +4,19 @@ import cv2
 import numpy as np
 from back_end.util import *
 
+
+def deeplab_postprocess():
+    for filename in os.listdir(DEEPLAB_DIR):
+        if filename.endswith('.png') or filename.endswith('.jpg'):
+            file_path = os.path.join(DEEPLAB_DIR, filename)
+            img = cv2.imread(file_path)
+            blue_mask = (img[:, :, 0] > 150) & (img[:, :, 1] < 50) & (img[:, :, 2] < 50)
+            img[~blue_mask] = [0, 0, 0]
+            cv2.imwrite(file_path, img)
+
+    print("deeplab结果处理完成")
+
+
 def post_process_image(input_path, output_path, alpha=255):
     """
     后处理函数，使图像中黑色部分变为纯透明，黑色以外的部分变为半透明。
@@ -41,7 +54,8 @@ def overlay_images(folder1, folder2, output_folder, alpha=0.5):
     :param folder1: 第一个文件夹路径，包含要叠加的图像
     :param folder2: 第二个文件夹路径，包含基础图像
     :param output_folder: 输出文件夹路径，保存叠加后的图像
-    :param alpha: 叠加图像的透明度（0.0-1.0）
+    :param alpha: 第一张图像的透明度（0.0-1.0）
+    :param beta: 第二张的透明度
     """
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -78,7 +92,7 @@ def overlay_images(folder1, folder2, output_folder, alpha=0.5):
                 image1 = cv2.cvtColor(image1, cv2.COLOR_BGRA2BGR)
 
         # 叠加图像
-        overlaid_image = cv2.addWeighted(image1, alpha, image2, 1 - alpha, 0)
+        overlaid_image = cv2.addWeighted(image1, alpha, image2, 1-alpha, 0)
 
         # 保存叠加后的图像
         cv2.imwrite(output_path, overlaid_image)
@@ -117,8 +131,11 @@ def process_image(alpha=0.5):
     os.makedirs(os.path.join(OVERLAY_DIR, 'deeplab_Unet_WeClip'), exist_ok=True)
 
     overlay_images(DEEPLAB_DIR, UNET_DIR, os.path.join(OVERLAY_DIR, 'deeplab_Unet'), alpha)
+    overlay_images(os.path.join(OVERLAY_DIR, 'deeplab_Unet'), THREE_CHANNEL_DIR, os.path.join(OVERLAY_DIR, 'deeplab_Unet'), alpha)
     overlay_images(DEEPLAB_DIR, WECLIP_DIR, os.path.join(OVERLAY_DIR, 'deeplab_WeClip'), alpha)
+    overlay_images(os.path.join(OVERLAY_DIR, 'deeplab_WeClip'), THREE_CHANNEL_DIR, os.path.join(OVERLAY_DIR, 'deeplab_WeClip'), alpha)
     overlay_images(UNET_DIR, WECLIP_DIR, os.path.join(OVERLAY_DIR, 'Unet_WeClip'), alpha)
+    overlay_images(os.path.join(OVERLAY_DIR, 'Unet_WeClip'), THREE_CHANNEL_DIR, os.path.join(OVERLAY_DIR, 'Unet_WeClip'), alpha)
 
     # 三个模型叠加
     overlay_images(os.path.join(OVERLAY_DIR, 'deeplab_Unet'), WECLIP_DIR, os.path.join(OVERLAY_DIR, 'deeplab_Unet_WeClip'), alpha)
