@@ -22,6 +22,8 @@ RESULT_DIR = config['result_dir']
 DEEPLAB_DIR = config['deeplab_dir']
 UNET_DIR = config['Unet_dir']
 WECLIP_DIR = config['WeClip_dir']
+OVERLAY_DIR = config['overlay_dir']
+
 
 
 # import写在最后防止循环导入

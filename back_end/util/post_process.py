@@ -189,9 +189,6 @@ def overlay2(folder1, folder2, output_folder, alpha=0.5):
         result.save(os.path.join(output_folder, img1))
 
 
-OVERLAY_DIR = config['overlay_dir']
-
-
 def process_image(alpha=0.5):
     for i in [DEEPLAB_DIR, UNET_DIR, WECLIP_DIR]:
         for image in os.listdir(i):
