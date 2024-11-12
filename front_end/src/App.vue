@@ -1,46 +1,228 @@
-<script setup lang="ts">
+<script setup lang="tsx">
 
 // 按钮，多选框的导入
-import {
-  Menu as IconMenu,
-  WarnTriangleFilled,
-  Avatar,
-} from '@element-plus/icons-vue'
-import { ref, watch, onMounted } from 'vue'
-import type { CheckboxValueType, UploadFile } from 'element-plus'
+import {Avatar, Menu as IconMenu, Plus, WarnTriangleFilled,CirclePlusFilled,CircleCloseFilled} from '@element-plus/icons-vue'
+import {onMounted, ref, watch} from 'vue'
+import type {CheckboxValueType, UploadProps, UploadUserFile} from 'element-plus'
+// 展示预测结果的导入
+import {ElIcon, ElImage, ElMessage, ElUpload} from 'element-plus'
 
 
 // 上传图片的导入
 import axios from 'axios'
-import { ElMessage, ElUpload, ElIcon } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
-
-
-// 展示预测结果的导入
-import { ElImage } from 'element-plus';
+import type Node from 'element-plus/es/components/tree/src/model/node'
 
 
 // 预测结果显示的具体实现
 const pre_result_img_urls = ref<string[]>([])
 
-  const img_len = ref(0)
-  const veiw_len = ref(0)
-  setListLength(pre_result_img_urls);
-  function setListLength(list: any) {
-    if (list.length <= 1){
-      img_len.value = 25
-      veiw_len.value = 26
-    }
-    else if (list.length <= 4 && list.length >= 2) {
-      img_len.value = 12.5
-      veiw_len.value = 26
-    }
-    else {
-      img_len.value = 8.33
-      veiw_len.value = 26
-    }
+const img_len = ref(0)
+const view_len = ref(0)
+
+setListLength(pre_result_img_urls);
+
+function sqrtAndCeil(x: number): number {
+  // 首先计算平方根
+  const sqrtValue = Math.sqrt(x);
+  // 然后使用 Math.ceil 向上取整
+  return Math.ceil(sqrtValue);
 }
 
+function setListLength(list: any) {
+
+  let sp_number;
+  sp_number = sqrtAndCeil(list.length)
+
+  img_len.value = 25 / sp_number
+  view_len.value = 26
+
+}
+
+// 页面加载时向后端请求获取workspace数据
+onMounted(async () => {
+  try {
+    // 请求后端获取 dataSource 数据
+    const response = await axios.get('/api/workspace');
+    workspace.value = response.data;
+  } catch (error) {
+    console.error('Failed to fetch workspace:', error);
+  }
+});
+
+
+// 定义workspace数据的 Tree 类型
+interface Tree {
+  id: number
+  label: string
+  url?: string
+  children?: Tree[]
+}
+
+let id = 1000
+
+// 图片文件列表
+const fileList = ref<UploadUserFile[]>([])
+
+// 树的节点数据
+const workspace = ref<Tree[]>([
+  {
+    id: 1,
+    label: '工作区1',
+    children: [],
+  },
+  {
+    id: 2,
+    label: '工作区2',
+    children: [],
+  },
+  {
+    id: 3,
+    label: '工作区3',
+    children: [],
+  },
+])
+
+// 复选框选中的节点列表
+const selectedNodes = ref<Tree[]>([])
+
+
+// 上传图片并创建新节点
+const append = async (data: Tree, files: File[]) => {
+  try {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('files', file));
+
+    // 上传图片数据到后端
+    const response = await axios.post('/api/upload', formData);
+    const uploadedFiles = response.data; // 接收图片路径和文件名
+
+    // 根据上传的文件创建新节点
+    uploadedFiles.forEach((file: { name: string, url: string }) => {
+      const newNode: Tree = {
+        id: id++,
+        label: file.name,
+        url: file.url,
+        children: [],
+      };
+      if (!data.children) data.children = [];
+      data.children.push(newNode);
+    });
+
+    // 更新树形数据
+    workspace.value = [...workspace.value];
+
+    // 同步 dataSource 到后端
+    await axios.post('/api/update-workspace', workspace.value);
+  } catch (error) {
+    console.error('Failed to append node:', error);
+  }
+};
+
+// 获取需要增加节点的工作区
+const appendNode = ref<Node>()
+const getAppendNode = (node: Node) => {
+  appendNode.value = node
+  console.log(appendNode.value)
+}
+
+// 删除节点
+const remove = (node: Node, data: Tree) => {
+  const parent = node.parent
+  const children: Tree[] = parent.data.children || parent.data
+  const index = children.findIndex((d) => d.id === data.id)
+  children.splice(index, 1)
+  workspace.value = [...workspace.value]
+}
+
+
+// 图像元数据的列表
+const imgList = ref<File[]>([])
+let fileProcessing = false; // 标记文件是否正在处理中
+
+// 实现图像选择的方法
+const handleFileChange: UploadProps['beforeUpload'] = (file) => {
+  imgList.value.push(file); // 将文件添加到 imgList
+
+  // 如果没有在处理文件，则通过微任务批量处理
+  if (!fileProcessing) {
+    fileProcessing = true; // 标记为正在处理中
+    Promise.resolve().then(() => {
+      // 文件处理逻辑
+      const rootNode = appendNode.value?.data as Tree // 假设选择的是第一个根节点
+
+      append(rootNode, imgList.value);
+
+      imgList.value.forEach((fileItem) => {
+
+      });
+
+      // 打印所有上传的文件
+      console.log("上传的文件列表：", imgList.value);
+
+      // 清空 imgList
+      imgList.value = [];
+      fileProcessing = false; // 重置标记
+    });
+  }
+
+  return false; // 阻止默认上传行为
+};
+
+// 节点的渲染方法
+const renderContent = (
+    h: any,
+    {node, data}: { node: Node; data: Tree }
+) => {
+  return (
+      <span class="custom-tree-node">
+      <span>{node.label}</span>
+        {node.level === 1 && (
+            <div style="position:relative">
+              <el-upload
+                  file-list={fileList.value}
+                  class="upload-demo"
+                  action="#"
+                  multiple
+                  limit={100}
+                  before-upload={handleFileChange}
+                  style="height:20px;width:60px;position: absolute;right:-30px"
+                  show-file-list={false}
+              >
+                <div style="position: absolute;bottom:6.5px">
+                  <el-icon color="#409eff" size="20px"
+                         onClick={() => getAppendNode(node)}
+                         ><CirclePlusFilled /></el-icon>
+                </div>
+
+              </el-upload>
+              <div
+                  style={{
+                    marginLeft: '-10px',
+                    position: 'absolute',
+                    bottom: '-14px',
+                    display: "none"
+                  }}
+              >
+                <el-icon
+                  color="#fc3d49"
+                  size="20px"
+                  onClick={() => remove(node, data)}
+                ><CircleCloseFilled /></el-icon>
+              </div>
+            </div>
+        )}
+    </span>
+  )
+}
+
+// 处理节点选择
+const handleCheckChange = (node: Node, checked: boolean) => {
+  if (checked) {
+    selectedNodes.value.push(node)
+  } else {
+    selectedNodes.value = selectedNodes.value.filter((n) => n.id !== node.id)
+  }
+}
 
 // 获取模型名称列表的请求
 const fetchModels = async () => {
@@ -57,7 +239,6 @@ const fetchModels = async () => {
     ElMessage.error('获取模型列表失败，使用默认列表')
   }
 }
-
 
 
 // 上传图片到服务器的具体实现
@@ -106,7 +287,6 @@ const handleChange = (file: any) => {
 }
 
 
-
 // 多选框的具体实现
 const checkAll = ref(false)
 const indeterminate = ref(false)
@@ -144,6 +324,8 @@ const handleCheckAll = (val: CheckboxValueType) => {
     value.value = []
   }
 }
+
+
 
 // 触发推理请求
 const isInferencing = ref(false) // 控制推理按钮的状态
@@ -196,10 +378,12 @@ const startInference = async () => {
 <template>
   <div class="common-layout">
     <el-container class="main-container" style="height: 100vh;">
+
+      <!-- 标题-->
       <el-header height="55px" style="border-bottom: 1px solid var(--el-border-color)">
         <div style="width: 100%; height: 100%;display: inline-flex;align-items: center;justify-content: center;">
           <el-icon :size="25" color="#606266">
-            <Avatar />
+            <Avatar/>
           </el-icon>
           <el-text size="large" tag="b">肺部影像segment</el-text>
         </div>
@@ -210,18 +394,20 @@ const startInference = async () => {
         <el-aside width="15vw" style="border-right: 1px solid var(--el-border-color);">
           <el-menu>
             <el-menu-item index="2">
-              <el-icon><icon-menu /></el-icon>
+              <el-icon>
+                <icon-menu/>
+              </el-icon>
               <template #title>对比推理</template>
             </el-menu-item>
             <el-menu-item index="3" disabled>
               <el-icon>
-                <WarnTriangleFilled />
+                <WarnTriangleFilled/>
               </el-icon>
               <template #title>施工中</template>
             </el-menu-item>
             <el-menu-item index="4" disabled>
               <el-icon>
-                <WarnTriangleFilled />
+                <WarnTriangleFilled/>
               </el-icon>
               <template #title>施工中</template>
             </el-menu-item>
@@ -229,21 +415,36 @@ const startInference = async () => {
         </el-aside>
 
         <!-- 主体部分 -->
-        <el-main>
+        <el-main style="padding: 5px;padding-top: 20px">
           <el-row>
-            <el-col :span="11">
+            <!--            工作区-->
+            <el-col :span="4" style="border: 2px dashed rgb(159.5, 206.5, 255);border-radius: 2px;padding-top: 8px">
+              <el-tree
+                  style="max-width: 600px"
+                  :data="workspace"
+                  show-checkbox
+                  node-key="id"
+                  default-expand-all
+                  :expand-on-click-node="false"
+                  :render-content="renderContent"
+                  @check-change="handleCheckChange"
+              />
+            </el-col>
+
+            <!--            工作区选择的图像-->
+            <el-col :span="9">
               <el-row align="top" :gutter="10">
                 <el-col :span="24" align="middle" justify="center">
                   <!-- 选择模型部分 -->
                   <div>
                     <el-select v-model="value" multiple clearable collapse-tags placeholder="选择推理的模型"
-                      popper-class="custom-header" :max-collapse-tags="2" size="large" style="width: 20vw">
+                               popper-class="custom-header" :max-collapse-tags="2" size="large" style="width: 20vw">
                       <template #header>
                         <el-checkbox v-model="checkAll" :indeterminate="indeterminate" @change="handleCheckAll">
                           All
                         </el-checkbox>
                       </template>
-                      <el-option v-for="item in models" :key="item.value" :label="item.label" :value="item.value" />
+                      <el-option v-for="item in models" :key="item.value" :label="item.label" :value="item.value"/>
                     </el-select>
 
                     <el-button type="primary" style="width: 15px;margin-left: 5px;">刷新</el-button>
@@ -258,10 +459,10 @@ const startInference = async () => {
                   </div>
 
                   <el-upload class="avatar-uploader" action="#" :show-file-list="false"
-                    :before-upload="beforeAvatarUpload" :on-change="handleChange">
-                    <img v-if="imageUrl" :src="imageUrl" class="avatar" style="height: 25vw;width: 25vw;" />
+                             :before-upload="beforeAvatarUpload" :on-change="handleChange">
+                    <img v-if="imageUrl" :src="imageUrl" class="avatar" style="height: 25vw;width: 25vw;"/>
                     <el-icon v-else class="avatar-uploader-icon" style="height: 25vw;width: 25vw;">
-                      <Plus />
+                      <Plus/>
                     </el-icon>
                   </el-upload>
 
@@ -269,29 +470,33 @@ const startInference = async () => {
 
               </el-row>
             </el-col>
-            <el-col :span="2"></el-col>
+
+            <!--            推理结果-->
             <el-col :span="11">
               <el-row align="top" :gutter="10">
                 <el-col :span="24" align="middle">
-                  <el-button 
-                  :type="isInferencing ? 'info' : 'primary'" 
-                  plain 
-                  :disabled="isInferencing"
-                  @click="startInference"
-                  style="width: 30vw;height: 4vw;">
-                  {{ isInferencing ? '推理中' : '开始推理' }}
-                </el-button>
+                  <el-button
+                      :type="isInferencing ? 'info' : 'primary'"
+                      plain
+                      :disabled="isInferencing"
+                      @click="startInference"
+                      style="width: 30vw;height: 4vw;">
+                    {{ isInferencing ? '推理中' : '开始推理' }}
+                  </el-button>
                 </el-col>
                 <el-col :span="24">
                   <div style="height: 3vw;"></div>
                 </el-col>
-                <el-col :span="24" align="middle" >
+                <el-col :span="24" align="middle">
                   <!-- 推理结果展示 -->
                   <div class="pre_result_show"
-                    :style="{ width: veiw_len+1 + 'vw', height: veiw_len + 'vw', overflowY: 'auto' }" style="border: 2px dashed rgb(159.5, 206.5, 255);border-radius: 6px;">
-                    <el-image :style="{ width: img_len + 'vw', height: img_len+0.2 + 'vw' }" v-for="(url, index) in pre_result_img_urls"
-                      :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2" :preview-src-list="pre_result_img_urls"
-                      :initial-index=index fit="cover" />
+                       :style="{ width: view_len+1 + 'vw', height: view_len + 'vw', overflowY: 'auto' }"
+                       style="border: 2px dashed rgb(159.5, 206.5, 255);border-radius: 6px;">
+                    <el-image :style="{ width: img_len + 'vw', height: img_len+0.2 + 'vw' }"
+                              v-for="(url, index) in pre_result_img_urls"
+                              :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
+                              :preview-src-list="pre_result_img_urls"
+                              :initial-index=index fit="cover"/>
                   </div>
                 </el-col>
               </el-row>
@@ -321,6 +526,16 @@ const startInference = async () => {
 
 
 <style>
+
+/* 自定义树节点样式 */
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
 .avatar-uploader .el-upload {
   border: 2px dashed rgb(159.5, 206.5, 255);
   border-radius: 6px;
