@@ -60,6 +60,12 @@ interface Tree {
 
 let id = 1000
 
+
+// 上传图片到服务器的具体实现
+const imageUrl = ref('')
+// 用于推理的图像列表
+const uped_img_local_path = ref<any[]>([])
+
 // 图片文件列表
 const fileList = ref<UploadUserFile[]>([])
 
@@ -156,6 +162,9 @@ const handleFileChange: UploadProps['beforeUpload'] = (file) => {
 
       });
 
+      uped_img_local_path.value = selectedNodes.value.map((node) => node.url);
+
+      console.log("要用于推理的文件列表：", uped_img_local_path.value);
       // 打印所有上传的文件
       console.log("上传的文件列表：", imgList.value);
 
@@ -241,10 +250,6 @@ const fetchModels = async () => {
 }
 
 
-// 上传图片到服务器的具体实现
-const imageUrl = ref('')
-const uped_img_local_path = ref('')
-
 
 const handleAvatarSuccess = (response: any) => {
   ElMessage.success('图片上传成功')
@@ -261,30 +266,30 @@ const beforeAvatarUpload = (rawFile: any) => {
   return true
 }
 
-const handleChange = (file: any) => {
-  const formData = new FormData()
-  formData.append('file', file.raw)
-  console.log(formData)
-
-  axios.post('/api/upload', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  }).then((response) => {
-    if (response.status === 200) {
-      handleAvatarSuccess(response.data)
-      // console.log(response.data)
-      imageUrl.value = URL.createObjectURL(file.raw)
-      console.log(imageUrl.value)
-      // uped_img_local_path.value = response.data.file_path
-      //回传本地图片的路径 
-    } else {
-      ElMessage.error('上传失败')
-    }
-  }).catch((error) => {
-    ElMessage.error(`上传失败: ${error}`)
-  })
-}
+// const handleChange = (file: any) => {
+//   const formData = new FormData()
+//   formData.append('file', file.raw)
+//   console.log(formData)
+//
+//   axios.post('/api/upload', formData, {
+//     headers: {
+//       'Content-Type': 'multipart/form-data'
+//     }
+//   }).then((response) => {
+//     if (response.status === 200) {
+//       handleAvatarSuccess(response.data)
+//       // console.log(response.data)
+//       imageUrl.value = URL.createObjectURL(file.raw)
+//       console.log(imageUrl.value)
+//       // uped_img_local_path.value = response.data.file_path
+//       //回传本地图片的路径
+//     } else {
+//       ElMessage.error('上传失败')
+//     }
+//   }).catch((error) => {
+//     ElMessage.error(`上传失败: ${error}`)
+//   })
+// }
 
 
 // 多选框的具体实现
@@ -454,17 +459,9 @@ const startInference = async () => {
                   <div style="height:5vw;"></div>
                 </el-col>
                 <el-col :span="24" align="middle">
-                  <!-- 上传图片部分 -->
+                  <!-- 选择的图片可视化部分 -->
                   <div style="width: 95%;">
                   </div>
-
-                  <el-upload class="avatar-uploader" action="#" :show-file-list="false"
-                             :before-upload="beforeAvatarUpload" :on-change="handleChange">
-                    <img v-if="imageUrl" :src="imageUrl" class="avatar" style="height: 25vw;width: 25vw;"/>
-                    <el-icon v-else class="avatar-uploader-icon" style="height: 25vw;width: 25vw;">
-                      <Plus/>
-                    </el-icon>
-                  </el-upload>
 
                 </el-col>
 

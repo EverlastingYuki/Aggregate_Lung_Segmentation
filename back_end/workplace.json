@@ -1,1 +1,17 @@
-[{"children": [{"id": 1000, "label": "ID_0188_Z_0137.png", "url": "front_end/static/uploaded/original\\ID_0188_Z_0137.png", "children": []}, {"id": 1001, "label": "ID_0189_Z_0132.png", "url": "front_end/static/uploaded/original\\ID_0189_Z_0132.png", "children": []}, {"id": 1002, "label": "ID_0190_Z_0070.png", "url": "front_end/static/uploaded/original\\ID_0190_Z_0070.png", "children": []}, {"id": 1003, "label": "ID_0191_Z_0140.png", "url": "front_end/static/uploaded/original\\ID_0191_Z_0140.png", "children": []}], "id": 1, "label": "\u5de5\u4f5c\u533a1"}, {"children": [], "id": 2, "label": "\u5de5\u4f5c\u533a2"}, {"children": [{"id": 1004, "label": "ID_0188_Z_0137.png", "url": "front_end/static/uploaded/original\\ID_0188_Z_0137.png", "children": []}, {"id": 1005, "label": "ID_0189_Z_0132.png", "url": "front_end/static/uploaded/original\\ID_0189_Z_0132.png", "children": []}, {"id": 1006, "label": "ID_0190_Z_0070.png", "url": "front_end/static/uploaded/original\\ID_0190_Z_0070.png", "children": []}, {"id": 1007, "label": "ID_0191_Z_0140.png", "url": "front_end/static/uploaded/original\\ID_0191_Z_0140.png", "children": []}, {"id": 1008, "label": "ID_0192_Z_0064.png", "url": "front_end/static/uploaded/original\\ID_0192_Z_0064.png", "children": []}], "id": 3, "label": "\u5de5\u4f5c\u533a666"}]
+[
+  {
+    "children": [],
+    "id": 1,
+    "label": "\u5de5\u4f5c\u533a1"
+  },
+  {
+    "children": [],
+    "id": 2,
+    "label": "\u5de5\u4f5c\u533a2"
+  },
+  {
+    "children": [],
+    "id": 3,
+    "label": "\u5de5\u4f5c\u533a666"
+  }
+]
