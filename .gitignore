@@ -165,14 +165,8 @@ cython_debug/
 /static/uploaded/one_channel/
 /static/uploaded/original/
 /static/uploaded/three_channel/
-/static/uploaded/one_channel/
-/static/uploaded/original/
-/static/uploaded/three_channel/
 /back_end/UNet/saved/
 /back_end/UNet/saved2/
-/back_end/UNet/saved/
-/back_end/UNet/saved2/
-/back_end/UNet/saved/
 /back_end/UNet/runs2/Unet/
 /back_end/models/
 /front_end/static/uploaded/

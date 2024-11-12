@@ -1,5 +1,6 @@
 import colorsys
 import copy
+import os
 import time
 
 import cv2
@@ -12,12 +13,18 @@ from torch import nn
 from .nets.deeplabv3_plus import DeepLab
 from .utils.utils import cvtColor, preprocess_input, resize_image, show_config
 
-
 # -----------------------------------------------------------------------------------#
 #   使用自己训练好的模型预测需要修改3个参数
 #   model_path、backbone和num_classes都需要修改！
 #   如果出现shape不匹配，一定要注意训练时的model_path、backbone和num_classes的修改
 # -----------------------------------------------------------------------------------#
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(PROJECT_ROOT)
+PROJECT_ROOT = os.path.join(PROJECT_ROOT, 'models\deeplabv3')
+PROJECT_ROOT = os.path.join(PROJECT_ROOT, 'best_epoch_weights.pth')
+
+# if __name__ == '__main__':
+#     print(PROJECT_ROOT)
 class DeeplabV3(object):
     _defaults = {
         # -------------------------------------------------------------------#
@@ -25,7 +32,7 @@ class DeeplabV3(object):
         #   训练好后logs文件夹下存在多个权值文件，选择验证集损失较低的即可。
         #   验证集损失较低不代表miou较高，仅代表该权值在验证集上泛化性能较好。
         # -------------------------------------------------------------------#
-        "model_path": 'back_end/deeplabv3/logs/best_epoch_weights.pth',
+        "model_path": PROJECT_ROOT,
         # ----------------------------------------#
         #   所需要区分的类的个数+1
         # ----------------------------------------#
@@ -78,7 +85,7 @@ class DeeplabV3(object):
             #                (64, 128, 128), (192, 128, 128), (0, 64, 0), (128, 64, 0), (0, 192, 0), (128, 192, 0),
             #                (0, 64, 128),
             #                (128, 64, 12)]
-            self.colors = [(255, 255, 255), (0, 0, 0)]
+            self.colors = [(0, 0, 0), (0, 0, 255)]
         else:
             hsv_tuples = [(x / self.num_classes, 1., 1.) for x in range(self.num_classes)]
             self.colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
