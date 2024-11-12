@@ -63,4 +63,4 @@ WECIP_DIR = os.path.join(RESULT_DIR, 'WeClip')
 # for image in os.listdir(UNET_DIR):
 #     path = os.path.join(UNET_DIR, image)
 #     post_process_image(input_path=path, output_path=path)
-process_image()
+# process_image()

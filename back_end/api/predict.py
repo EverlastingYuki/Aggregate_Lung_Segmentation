@@ -18,8 +18,7 @@ from back_end.api import *
 import yaml
 
 from back_end.util.clear_results import clear_results
-from back_end.util.post_process import post_process_image
-
+from back_end.util.post_process import post_process_image, process_image, deeplab_postprocess
 
 
 # # 定义预测结果目录
@@ -75,16 +74,14 @@ def start():
     image_path = data.get('image_url')
     models = data.get('models')
     clear_results()
-    if 'DeepLab' in models:
-        predict_deeplab(PROJECT_ROOT, ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, DEEPLAB_DIR)
     if 'U-net' in models:
         predict_Unet(PROJECT_ROOT, ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, UNET_DIR)
+    if 'DeepLab' in models:
+        predict_deeplab(PROJECT_ROOT, ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, DEEPLAB_DIR)
+        deeplab_postprocess()
     if 'WeClip' in models:
         predict_WeClip(PROJECT_ROOT, ONE_CHANNEL_DIR, THREE_CHANNEL_DIR, UNET_DIR)
-    # for i in [DEEPLAB_DIR, UNET_DIR, WECLIP_DIR]:
-    #     for image in os.listdir(i):
-    #         path = os.path.join(i, image)
-    #         post_process_image(input_path=path, output_path=path)
+    process_image()
     unet_images = os.listdir(UNET_DIR)
     deeplab_images = os.listdir(DEEPLAB_DIR)
     unet_image_urls = [f'./static/result/Unet/{image}' for image in unet_images]
