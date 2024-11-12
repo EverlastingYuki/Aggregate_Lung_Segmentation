@@ -18,6 +18,8 @@ const pre_result_img_urls = ref<string[]>([])
 
 const img_len = ref(0)
 const view_len = ref(0)
+const img_len_view = ref(0)
+const view_len_view = ref(0)
 
 setListLength(pre_result_img_urls);
 
@@ -35,6 +37,16 @@ function setListLength(list: any) {
 
   img_len.value = 25 / sp_number
   view_len.value = 26
+
+}
+
+function setViewListLength(list: any) {
+
+  let sp_number;
+  sp_number = sqrtAndCeil(list.length)
+
+  img_len_view.value = 25 / sp_number
+  view_len_view.value = 26
 
 }
 
@@ -101,6 +113,7 @@ const append = async (data: Tree, files: File[]) => {
     // 上传图片数据到后端
     const response = await axios.post('/api/upload', formData);
     const uploadedFiles = response.data; // 接收图片路径和文件名
+    handleAvatarSuccess(response.data)
 
     // 根据上传的文件创建新节点
     uploadedFiles.forEach((file: { name: string, url: string }) => {
@@ -162,9 +175,7 @@ const handleFileChange: UploadProps['beforeUpload'] = (file) => {
 
       });
 
-      uped_img_local_path.value = selectedNodes.value.map((node) => node.url);
 
-      console.log("要用于推理的文件列表：", uped_img_local_path.value);
       // 打印所有上传的文件
       console.log("上传的文件列表：", imgList.value);
 
@@ -231,6 +242,10 @@ const handleCheckChange = (node: Node, checked: boolean) => {
   } else {
     selectedNodes.value = selectedNodes.value.filter((n) => n.id !== node.id)
   }
+  uped_img_local_path.value = selectedNodes.value.map((node) => node.url);
+  console.log("要用于推理的文件列表：", uped_img_local_path.value);
+  setViewListLength(pre_result_img_urls);
+
 }
 
 // 获取模型名称列表的请求
@@ -295,7 +310,7 @@ const beforeAvatarUpload = (rawFile: any) => {
 // 多选框的具体实现
 const checkAll = ref(false)
 const indeterminate = ref(false)
-const value = ref<CheckboxValueType[]>([])//这个value绑定了多选框的选中值
+const selectedModels = ref<CheckboxValueType[]>([])//这个value绑定了多选框的选中值
 const models = ref([
   {
     value: 'U-net',
@@ -310,7 +325,7 @@ const models = ref([
     label: 'WeClip',
   },
 ])
-watch(value, (val) => {
+watch(selectedModels, (val) => {
   if (val.length === 0) {
     checkAll.value = false
     indeterminate.value = false
@@ -324,9 +339,9 @@ watch(value, (val) => {
 const handleCheckAll = (val: CheckboxValueType) => {
   indeterminate.value = false
   if (val) {
-    value.value = models.value.map((_) => _.value)
+    selectedModels.value = models.value.map((_) => _.value)
   } else {
-    value.value = []
+    selectedModels.value = []
   }
 }
 
@@ -335,8 +350,10 @@ const handleCheckAll = (val: CheckboxValueType) => {
 // 触发推理请求
 const isInferencing = ref(false) // 控制推理按钮的状态
 
+
 const startInference = async () => {
-  if (!imageUrl.value || value.value.length === 0) {
+
+  if (!uped_img_local_path.value || selectedModels.value.length === 0) {
     ElMessage.error('请上传图片并选择模型')
     return
   }
@@ -346,7 +363,7 @@ const startInference = async () => {
   try {
     const response = await axios.post('/api/start', {
       image_url: uped_img_local_path.value,
-      models: value.value,
+      models: selectedModels.value,
     })
     console.log(response)
 
@@ -442,7 +459,7 @@ const startInference = async () => {
                 <el-col :span="24" align="middle" justify="center">
                   <!-- 选择模型部分 -->
                   <div>
-                    <el-select v-model="value" multiple clearable collapse-tags placeholder="选择推理的模型"
+                    <el-select v-model="selectedModels" multiple clearable collapse-tags placeholder="选择推理的模型"
                                popper-class="custom-header" :max-collapse-tags="2" size="large" style="width: 20vw">
                       <template #header>
                         <el-checkbox v-model="checkAll" :indeterminate="indeterminate" @change="handleCheckAll">
@@ -463,6 +480,15 @@ const startInference = async () => {
                   <div style="width: 95%;">
                   </div>
 
+                  <div class="pre_result_show"
+                       :style="{ width: view_len_view+1 + 'vw', height: view_len_view + 'vw', overflowY: 'auto' }"
+                       style="border: 2px dashed rgb(159.5, 206.5, 255);border-radius: 6px;">
+                    <el-image :style="{ width: img_len_view + 'vw', height: img_len_view+0.2 + 'vw' }"
+                              v-for="(url, index) in uped_img_local_path"
+                              :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
+                              :preview-src-list="uped_img_local_path"
+                              :initial-index=index fit="cover"/>
+                  </div>
                 </el-col>
 
               </el-row>
