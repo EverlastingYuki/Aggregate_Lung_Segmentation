@@ -98,7 +98,7 @@ def upload():
 
         response_data.append({
             "name": file.filename,
-            "url": original_img_path
+            "url": f'./static/upload/three_channel/'+file.filename
         })
 
     return jsonify(response_data), 200
