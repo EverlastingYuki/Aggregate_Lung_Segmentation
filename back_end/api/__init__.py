@@ -28,3 +28,4 @@ OVERLAY_DIR = config['overlay_dir']
 
 # import写在最后防止循环导入
 from back_end.api import predict
+from back_end.api import workplace
