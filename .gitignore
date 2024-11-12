@@ -176,3 +176,4 @@ cython_debug/
 /front_end/node_modules/
 /back_end/models/
 /front_end/node_modules/
+/back_end/workplace.json
