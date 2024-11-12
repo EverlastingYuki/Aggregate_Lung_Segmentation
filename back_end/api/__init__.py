@@ -1,5 +1,4 @@
 import os
-
 from flask import Blueprint
 import yaml
 
@@ -26,7 +25,23 @@ OVERLAY_DIR = config['overlay_dir']
 
 WORKSPACE_PATH = config['workspace_path']
 
+# 定义公开接口
+__all__ = [
+    'api',
+    'STATIC_DIR',
+    'PROJECT_ROOT',
+    'UPLOADED_DIR',
+    'ORIGINAL_DIR',
+    'ONE_CHANNEL_DIR',
+    'THREE_CHANNEL_DIR',
+    'RESULT_DIR',
+    'DEEPLAB_DIR',
+    'UNET_DIR',
+    'WECLIP_DIR',
+    'OVERLAY_DIR',
+    'WORKSPACE_PATH'
+]
 
-# import写在最后防止循环导入
+# 延迟导入 predict 和 workspace
 from back_end.api import predict
 from back_end.api import workspace
