@@ -1,17 +1,1 @@
-[
-  {
-    "children": [],
-    "id": 1,
-    "label": "\u5de5\u4f5c\u533a1"
-  },
-  {
-    "children": [],
-    "id": 2,
-    "label": "\u5de5\u4f5c\u533a2"
-  },
-  {
-    "children": [],
-    "id": 3,
-    "label": "\u5de5\u4f5c\u533a666"
-  }
-]
+[{"children": [], "id": 1, "label": "工作区1"}, {"children": [], "id": 2, "label": "工作区2"}, {"children": [{"id": 1000, "label": "ID_0188_Z_0137.tif", "url": "./static/upload/three_channel/ID_0188_Z_0137.tif", "children": []}, {"id": 1001, "label": "ID_0188_Z_0137.png", "url": "./static/upload/three_channel/ID_0188_Z_0137.png", "children": []}], "id": 3, "label": "工作区666"}]

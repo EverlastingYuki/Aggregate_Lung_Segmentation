@@ -166,8 +166,8 @@ def update_workspace():
     """
     try:
         data = request.json
-        with open(WORKSPACE_PATH, 'w') as f:
-            json.dump(data, f, ensure_ascii=False)
+        with open(WORKSPACE_PATH, 'w', encoding='utf-8') as f:
+            json.dump(data, f,ensure_ascii=False)
         return jsonify({"status": "success"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
