@@ -1,20 +1,29 @@
 <script setup lang="tsx">
 
 // 按钮，多选框的导入
-import {Avatar, Menu as IconMenu, Plus, WarnTriangleFilled,CirclePlusFilled,CircleCloseFilled} from '@element-plus/icons-vue'
+import {
+  Avatar,
+  CircleCloseFilled,
+  CirclePlusFilled,
+  Menu as IconMenu,
+  WarnTriangleFilled
+} from '@element-plus/icons-vue'
 import {onMounted, ref, watch} from 'vue'
 import type {CheckboxValueType, UploadProps, UploadUserFile} from 'element-plus'
 // 展示预测结果的导入
-import {ElIcon, ElImage, ElMessage, ElUpload} from 'element-plus'
+import {ElIcon, ElImage, ElMessage} from 'element-plus'
 
 
 // 上传图片的导入
 import axios from 'axios'
 import type Node from 'element-plus/es/components/tree/src/model/node'
 
-
+const temp_dir = './static/uploaded/three_channel/ase.png'
 // 预测结果显示的具体实现
 const pre_result_img_urls = ref<string[]>([])
+
+// 用于推理的图像列表
+const uped_img_local_path = ref<string[]>([])
 
 const img_len = ref(0)
 const view_len = ref(0)
@@ -22,6 +31,7 @@ const img_len_view = ref(0)
 const view_len_view = ref(0)
 
 setListLength(pre_result_img_urls);
+setViewListLength(uped_img_local_path);
 
 function sqrtAndCeil(x: number): number {
   // 首先计算平方根
@@ -43,10 +53,12 @@ function setListLength(list: any) {
 function setViewListLength(list: any) {
 
   let sp_number;
-  sp_number = sqrtAndCeil(list.length)
-
+  // console.log("list:", list)
+  sp_number = sqrtAndCeil(list.value.length)
+  // console.log("sp_number:", sp_number)
   img_len_view.value = 25 / sp_number
   view_len_view.value = 26
+  // console.log("img_len_view:", img_len_view.value)
 
 }
 
@@ -75,8 +87,7 @@ let id = 1000
 
 // 上传图片到服务器的具体实现
 const imageUrl = ref('')
-// 用于推理的图像列表
-const uped_img_local_path = ref<any[]>([])
+
 
 // 图片文件列表
 const fileList = ref<UploadUserFile[]>([])
@@ -160,6 +171,14 @@ let fileProcessing = false; // 标记文件是否正在处理中
 
 // 实现图像选择的方法
 const handleFileChange: UploadProps['beforeUpload'] = (file) => {
+
+
+  if (file.type !== 'image/jpeg' && file.type !== 'image/png' && file.type !== 'image/fit') {
+    ElMessage.error('Avatar picture must be JPG or PNG format!')
+    return false
+  }
+
+
   imgList.value.push(file); // 将文件添加到 imgList
 
   // 如果没有在处理文件，则通过微任务批量处理
@@ -210,8 +229,8 @@ const renderContent = (
               >
                 <div style="position: absolute;bottom:6.5px">
                   <el-icon color="#409eff" size="20px"
-                         onClick={() => getAppendNode(node)}
-                         ><CirclePlusFilled /></el-icon>
+                           onClick={() => getAppendNode(node)}
+                  ><CirclePlusFilled/></el-icon>
                 </div>
 
               </el-upload>
@@ -224,10 +243,10 @@ const renderContent = (
                   }}
               >
                 <el-icon
-                  color="#fc3d49"
-                  size="20px"
-                  onClick={() => remove(node, data)}
-                ><CircleCloseFilled /></el-icon>
+                    color="#fc3d49"
+                    size="20px"
+                    onClick={() => remove(node, data)}
+                ><CircleCloseFilled/></el-icon>
               </div>
             </div>
         )}
@@ -242,69 +261,26 @@ const handleCheckChange = (node: Node, checked: boolean) => {
   } else {
     selectedNodes.value = selectedNodes.value.filter((n) => n.id !== node.id)
   }
-  uped_img_local_path.value = selectedNodes.value.map((node) => node.url);
-  console.log("要用于推理的文件列表：", uped_img_local_path.value);
-  setViewListLength(pre_result_img_urls);
+  uped_img_local_path.value = [];  // 初始化为一个空数组
 
-}
+// 使用for循环代替map，并加入类型判断
+  for (let i = 0; i < selectedNodes.value.length; i++) {
+    const temp_node = selectedNodes.value[i];
 
-// 获取模型名称列表的请求
-const fetchModels = async () => {
-  try {
-    const response = await axios.get('/api/models')
-    if (response.status === 200) {
-      models.value = response.data.map((model: string) => ({
-        value: model,
-        label: model,
-      }))
-      ElMessage.success('模型列表已更新')
+    // 判断 node.url 是否为 string 类型
+    if (typeof temp_node.url === 'string') {
+      uped_img_local_path.value.push(temp_node.url);
     }
-  } catch (error) {
-    ElMessage.error('获取模型列表失败，使用默认列表')
   }
+
+  console.log("要用于推理的文件列表：", uped_img_local_path.value);
+  setViewListLength(uped_img_local_path);
+
 }
-
-
 
 const handleAvatarSuccess = (response: any) => {
   ElMessage.success('图片上传成功')
 }
-
-const beforeAvatarUpload = (rawFile: any) => {
-  if (rawFile.type !== 'image/jpeg' && rawFile.type !== 'image/png' && rawFile.type !== 'image/fit') {
-    ElMessage.error('Avatar picture must be JPG or PNG format!')
-    return false
-  } else if (rawFile.size / 1024 / 1024 > 2) {
-    ElMessage.error('Avatar picture size can not exceed 2MB!')
-    return false
-  }
-  return true
-}
-
-// const handleChange = (file: any) => {
-//   const formData = new FormData()
-//   formData.append('file', file.raw)
-//   console.log(formData)
-//
-//   axios.post('/api/upload', formData, {
-//     headers: {
-//       'Content-Type': 'multipart/form-data'
-//     }
-//   }).then((response) => {
-//     if (response.status === 200) {
-//       handleAvatarSuccess(response.data)
-//       // console.log(response.data)
-//       imageUrl.value = URL.createObjectURL(file.raw)
-//       console.log(imageUrl.value)
-//       // uped_img_local_path.value = response.data.file_path
-//       //回传本地图片的路径
-//     } else {
-//       ElMessage.error('上传失败')
-//     }
-//   }).catch((error) => {
-//     ElMessage.error(`上传失败: ${error}`)
-//   })
-// }
 
 
 // 多选框的具体实现
@@ -344,7 +320,6 @@ const handleCheckAll = (val: CheckboxValueType) => {
     selectedModels.value = []
   }
 }
-
 
 
 // 触发推理请求
@@ -489,6 +464,8 @@ const startInference = async () => {
                               :preview-src-list="uped_img_local_path"
                               :initial-index=index fit="cover"/>
                   </div>
+                  <!--                  <img :src="temp_dir" alt="">-->
+                  <!--                  <img :src="uped_img_local_path[0]" alt="">-->
                 </el-col>
 
               </el-row>

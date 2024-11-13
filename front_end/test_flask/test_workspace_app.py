@@ -9,7 +9,7 @@ CORS(app)  # 允许跨域请求
 
 # 配置上传目录
 UPLOAD_FOLDER = r"I:\new_tech\Aggregate_Lung_Segmentation\front_end\test_flask\test_static"
-DATA_SOURCE_FILE = 'data_source.json'
+DATA_SOURCE_FILE = r"I:\new_tech\Aggregate_Lung_Segmentation\front_end\test_flask\test_static\workspace.json"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 限制文件大小为10MB
 
@@ -18,7 +18,7 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 # 获取 dataSource 数据
-@app.route('/data-source', methods=['GET'])
+@app.route('/api/workspace', methods=['GET'])
 def get_data_source():
     if not os.path.exists(DATA_SOURCE_FILE):
         return jsonify([])  # 如果文件不存在，返回空数组
@@ -30,7 +30,7 @@ def get_data_source():
             return jsonify([])
 
 # 更新 dataSource 数据
-@app.route('/update-data-source', methods=['POST'])
+@app.route('/api/update-workspace', methods=['POST'])
 def update_data_source():
     try:
         data = request.json
@@ -41,7 +41,7 @@ def update_data_source():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 # 上传图片接口
-@app.route('/upload', methods=['POST'])
+@app.route('/api/upload', methods=['POST'])
 def upload_file():
     uploaded_files = []
     try:
@@ -54,7 +54,7 @@ def upload_file():
             # 构造文件信息返回给前端
             uploaded_files.append({
                 'name': filename,
-                'url': f'./uploads/{filename}'
+                'url': f'./test_flask/test_static/{filename}'
             })
 
         return jsonify(uploaded_files)
