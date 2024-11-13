@@ -18,7 +18,6 @@ import {ElIcon, ElImage, ElMessage} from 'element-plus'
 import axios from 'axios'
 import type Node from 'element-plus/es/components/tree/src/model/node'
 
-const temp_dir = './static/uploaded/three_channel/ase.png'
 // 预测结果显示的具体实现
 const pre_result_img_urls = ref<string[]>([])
 
@@ -263,7 +262,6 @@ const handleCheckChange = (node: Node, checked: boolean) => {
   }
   uped_img_local_path.value = [];  // 初始化为一个空数组
 
-// 使用for循环代替map，并加入类型判断
   for (let i = 0; i < selectedNodes.value.length; i++) {
     const temp_node = selectedNodes.value[i];
 
@@ -464,8 +462,6 @@ const startInference = async () => {
                               :preview-src-list="uped_img_local_path"
                               :initial-index=index fit="cover"/>
                   </div>
-                  <!--                  <img :src="temp_dir" alt="">-->
-                  <!--                  <img :src="uped_img_local_path[0]" alt="">-->
                 </el-col>
 
               </el-row>
