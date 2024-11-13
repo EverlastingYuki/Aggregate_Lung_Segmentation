@@ -18,6 +18,7 @@ import {ElIcon, ElImage, ElMessage} from 'element-plus'
 import axios from 'axios'
 import type Node from 'element-plus/es/components/tree/src/model/node'
 
+const temp_dir = './static/uploaded/three_channel/ase.png'
 // 预测结果显示的具体实现
 const pre_result_img_urls = ref<string[]>([])
 
@@ -172,7 +173,7 @@ let fileProcessing = false; // 标记文件是否正在处理中
 const handleFileChange: UploadProps['beforeUpload'] = (file) => {
 
 
-  if (file.type !== 'image/jpeg' && file.type !== 'image/png' && file.type !== 'image/fit') {
+  if (file.type !== 'image/jpeg' && file.type !== 'image/png' && file.type !== 'image/tif') {
     ElMessage.error('Avatar picture must be JPG or PNG format!')
     return false
   }
@@ -267,7 +268,7 @@ const handleCheckChange = (node: Node, checked: boolean) => {
 
     // 判断 node.url 是否为 string 类型
     if (typeof temp_node.url === 'string') {
-      uped_img_local_path.value.push(temp_node.url);
+      uped_img_local_path.value.push((temp_node.url));
     }
   }
 
@@ -462,6 +463,8 @@ const startInference = async () => {
                               :preview-src-list="uped_img_local_path"
                               :initial-index=index fit="cover"/>
                   </div>
+                  <!--                  <img :src="temp_dir" alt="">-->
+                  <!--                  <img :src="uped_img_local_path[0]" alt="">-->
                 </el-col>
 
               </el-row>
