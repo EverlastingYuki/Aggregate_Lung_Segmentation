@@ -105,3 +105,53 @@ def send_image(model_name, filename):
         return send_from_directory(WECLIP_DIR, filename)
     else:
         return "Invalid model name", 404
+
+
+# @api.route('static/result/<model_name>/<path:filename>', methods=['GET'])
+# def send_image(model_name, filename):
+#     """
+#     发送图像，根据请求中的模型名称和文件名返回相应的图像文件。
+#
+#     ### args
+#     |  args          | required | request type | type |  remarks                  |
+#     |----------------|----------|--------------|------|---------------------------|
+#     | model_name     |  true    |    path      | str  | 模型名称  |
+#     | filename       |  true    |    path      | str  | 文件名  |
+#
+#     ### request
+#     - GET 请求，URL 中包含模型名称和文件名。
+#
+#     ### return
+#     - 返回指定模型的预测结果图像文件。
+#     - 如果模型名称无效，返回错误信息和状态码 404。
+#     """
+#     if model_name == 'U-net':
+#         return send_from_directory(UNET_DIR, filename)
+#     elif model_name == 'DeepLab':
+#         return send_from_directory(DEEPLAB_DIR, filename)
+#     elif model_name == 'WeClip':
+#         return send_from_directory(WECLIP_DIR, filename)
+#     else:
+#         return "Invalid model name", 404
+
+
+STATIC_DIR = os.path.abspath(os.path.join(os.getcwd(), 'front_end/static'))
+
+
+# @api.route('/static/<path:filename>')
+# def serve_static(filename):
+#     print("发送图片: " + filename)
+#
+#     # 动态确定文件所在的目录
+#     directory = os.path.join(STATIC_DIR, os.path.dirname(filename))
+#
+#     # 返回文件
+#     print(directory)
+#     print(os.path.basename(filename))
+#     return send_from_directory(os.path.dirname(filename), os.path.basename(filename))
+
+
+@api.route('/static/<path:filename>')
+def static_file(filename):
+    print("发送图片: " + filename)
+    return send_from_directory(STATIC_DIR, filename)

@@ -4,7 +4,8 @@ from flask_docs import ApiDoc
 
 from .api import api
 # 初始化flaskAPP
-app = Flask(__name__, static_folder="static")
+app = Flask(__name__, static_folder="front_end/static")
+
 
 # 允许跨域请求
 CORS(app, resources={r"/api/*": {"origins": "*"}})

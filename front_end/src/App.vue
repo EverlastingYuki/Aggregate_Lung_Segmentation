@@ -173,10 +173,10 @@ let fileProcessing = false; // 标记文件是否正在处理中
 const handleFileChange: UploadProps['beforeUpload'] = (file) => {
 
 
-  if (file.type !== 'image/jpeg' && file.type !== 'image/png' && file.type !== 'image/fit') {
-    ElMessage.error('Avatar picture must be JPG or PNG format!')
-    return false
-  }
+  // if (file.type !== 'image/jpeg' && file.type !== 'image/png' && file.type !== 'image/fit') {
+  //   ElMessage.error('Avatar picture must be JPG or PNG format!')
+  //   return false
+  // }
 
 
   imgList.value.push(file); // 将文件添加到 imgList
@@ -465,7 +465,7 @@ const startInference = async () => {
                               :initial-index=index fit="cover"/>
                   </div>
                   <!--                  <img :src="temp_dir" alt="">-->
-                  <!--                  <img :src="uped_img_local_path[0]" alt="">-->
+<!--                                    <img :src="uped_img_local_path[0]" alt="">-->
                 </el-col>
 
               </el-row>

@@ -8,8 +8,8 @@ app = Flask(__name__)
 CORS(app)  # 允许跨域请求
 
 # 配置上传目录
-UPLOAD_FOLDER = r"I:\new_tech\Aggregate_Lung_Segmentation\front_end\test_flask\test_static"
-DATA_SOURCE_FILE = r"I:\new_tech\Aggregate_Lung_Segmentation\front_end\test_flask\test_static\workspace.json"
+UPLOAD_FOLDER = r"\front_end\test_flask\test_static"
+DATA_SOURCE_FILE = r"\front_end\test_flask\test_static\workspace.json"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 限制文件大小为10MB
 
