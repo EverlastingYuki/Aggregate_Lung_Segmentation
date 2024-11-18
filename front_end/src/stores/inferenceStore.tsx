@@ -117,7 +117,15 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
     };
     const renderContent = (h: any, {node, data}: { node: Node; data: Tree }) => {
         return (
-            <span class="custom-tree-node">
+            <span
+                style={{
+                    flex: "1",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    fontSize: "12px"
+                }}
+            >
         <span>{node.label}</span>
                 {node.level === 1 ? (
                     <div style="position:relative">

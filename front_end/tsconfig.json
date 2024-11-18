@@ -11,9 +11,10 @@
     "skipLibCheck": true,
     "lib": [ "es2015" ],
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@": ["src"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
