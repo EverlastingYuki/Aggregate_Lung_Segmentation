@@ -5,6 +5,7 @@ import numpy as np
 from back_end.util import *
 from PIL import Image
 
+
 def deeplab_postprocess():
     for filename in os.listdir(DEEPLAB_DIR):
         if filename.endswith('.png') or filename.endswith('.jpg'):
@@ -61,7 +62,6 @@ def add_weighted_overlay_images(folder1, folder2, output_folder, alpha=0.5):
     :param folder2: 第二个文件夹路径，包含基础图像
     :param output_folder: 输出文件夹路径，保存叠加后的图像
     :param alpha: 第一张图像的透明度（0.0-1.0）
-    :param beta: 第二张的透明度
     """
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -98,7 +98,7 @@ def add_weighted_overlay_images(folder1, folder2, output_folder, alpha=0.5):
                 image1 = cv2.cvtColor(image1, cv2.COLOR_BGRA2BGR)
 
         # 叠加图像
-        overlaid_image = cv2.addWeighted(image1, alpha, image2, 1-alpha, 0)
+        overlaid_image = cv2.addWeighted(image1, alpha, image2, 1 - alpha, 0)
 
         # 保存叠加后的图像
         cv2.imwrite(output_path, overlaid_image)
@@ -125,8 +125,11 @@ def add_overlay_images(folder1, folder2, output_folder, alpha=0.5):
         output_path = os.path.join(output_folder, file)
 
         # 检查文件是否存在
-        if not os.path.isfile(path1) or not os.path.isfile(path2):
-            print(f"文件 {file} 在其中一个文件夹中不存在，跳过。")
+        if not os.path.isfile(path1):
+            print(f"文件 {file} 在{path1}中不存在，跳过。")
+            continue
+        if not os.path.isfile(path2):
+            print(f"文件 {file} 在{path2}中不存在，跳过。")
             continue
 
         # 读取图像
@@ -169,7 +172,7 @@ def overlay2(folder1, folder2, output_folder, alpha=0.5):
 
     # 检查两个文件夹中的图片数量是否相同
     if len(images1) != len(images2):
-        print("两个文件夹中的图片数量不匹配")
+        print(folder1 + "与" + folder2 + "两个文件夹中的图片数量不匹配，跳过")
         return 1
 
     # 遍历图片并进行叠加
@@ -189,17 +192,18 @@ def overlay2(folder1, folder2, output_folder, alpha=0.5):
         result.save(os.path.join(output_folder, img1))
 
 
-def process_image(alpha=0.5):
+def process_image(three_channel_dir, alpha=0.5):
     for i in [DEEPLAB_DIR, UNET_DIR, WECLIP_DIR]:
-        for image in os.listdir(i):
-            path = os.path.join(i, image)
-            post_process_image(input_path=path, output_path=path)
+        if os.path.exists(i):
+            for image in os.listdir(i):
+                path = os.path.join(i, image)
+                post_process_image(input_path=path, output_path=path)
     if os.path.exists(OVERLAY_DIR):
         shutil.rmtree(OVERLAY_DIR)
     os.makedirs(OVERLAY_DIR)
     os.makedirs(os.path.join(OVERLAY_DIR, 'original'), exist_ok=True)
-    for image in os.listdir(THREE_CHANNEL_DIR):
-        src_path = os.path.join(THREE_CHANNEL_DIR, image)
+    for image in os.listdir(three_channel_dir):
+        src_path = os.path.join(three_channel_dir, image)
         dst_path = os.path.join(OVERLAY_DIR, 'original', image)
         shutil.copy2(src_path, dst_path)
 
@@ -208,9 +212,9 @@ def process_image(alpha=0.5):
     os.makedirs(os.path.join(OVERLAY_DIR, 'Unet'), exist_ok=True)
     os.makedirs(os.path.join(OVERLAY_DIR, 'WeClip'), exist_ok=True)
 
-    overlay_images(DEEPLAB_DIR, THREE_CHANNEL_DIR, os.path.join(OVERLAY_DIR, 'deeplab'), alpha)
-    overlay_images(UNET_DIR, THREE_CHANNEL_DIR, os.path.join(OVERLAY_DIR, 'Unet'), alpha)
-    overlay_images(WECLIP_DIR, THREE_CHANNEL_DIR, os.path.join(OVERLAY_DIR, 'WeClip'), alpha)
+    overlay_images(DEEPLAB_DIR, three_channel_dir, os.path.join(OVERLAY_DIR, 'deeplab'), alpha)
+    overlay_images(UNET_DIR, three_channel_dir, os.path.join(OVERLAY_DIR, 'Unet'), alpha)
+    overlay_images(WECLIP_DIR, three_channel_dir, os.path.join(OVERLAY_DIR, 'WeClip'), alpha)
 
     # 两个模型叠加
     os.makedirs(os.path.join(OVERLAY_DIR, 'deeplab_Unet'), exist_ok=True)
@@ -219,11 +223,21 @@ def process_image(alpha=0.5):
     os.makedirs(os.path.join(OVERLAY_DIR, 'deeplab_Unet_WeClip'), exist_ok=True)
 
     add_overlay_images(DEEPLAB_DIR, UNET_DIR, os.path.join(OVERLAY_DIR, 'deeplab_Unet'), alpha)
-    overlay_images(os.path.join(OVERLAY_DIR, 'deeplab_Unet'), THREE_CHANNEL_DIR, os.path.join(OVERLAY_DIR, 'deeplab_Unet'), alpha)
+    add_overlay_images(DEEPLAB_DIR, UNET_DIR, os.path.join(OVERLAY_DIR, 'deeplab_Unet_WeClip'), alpha)
+    overlay_images(os.path.join(OVERLAY_DIR, 'deeplab_Unet'), three_channel_dir,
+                   os.path.join(OVERLAY_DIR, 'deeplab_Unet'), alpha)
     add_overlay_images(DEEPLAB_DIR, WECLIP_DIR, os.path.join(OVERLAY_DIR, 'deeplab_WeClip'), alpha)
-    overlay_images(os.path.join(OVERLAY_DIR, 'deeplab_WeClip'), THREE_CHANNEL_DIR, os.path.join(OVERLAY_DIR, 'deeplab_WeClip'), alpha)
+    overlay_images(os.path.join(OVERLAY_DIR, 'deeplab_WeClip'), three_channel_dir,
+                   os.path.join(OVERLAY_DIR, 'deeplab_WeClip'), alpha)
     add_overlay_images(UNET_DIR, WECLIP_DIR, os.path.join(OVERLAY_DIR, 'Unet_WeClip'), alpha)
-    overlay_images(os.path.join(OVERLAY_DIR, 'Unet_WeClip'), THREE_CHANNEL_DIR, os.path.join(OVERLAY_DIR, 'Unet_WeClip'), alpha)
+    overlay_images(os.path.join(OVERLAY_DIR, 'Unet_WeClip'), three_channel_dir,
+                   os.path.join(OVERLAY_DIR, 'Unet_WeClip'), alpha)
 
     # 三个模型叠加
-    overlay_images(os.path.join(OVERLAY_DIR, 'deeplab_Unet'), WECLIP_DIR, os.path.join(OVERLAY_DIR, 'deeplab_Unet_WeClip'), alpha)
+    if os.listdir(WECLIP_DIR):
+        add_overlay_images(os.path.join(OVERLAY_DIR, 'deeplab_Unet_WeClip'), WECLIP_DIR,
+                           os.path.join(OVERLAY_DIR, 'deeplab_Unet_WeClip'), alpha)
+        overlay_images(os.path.join(OVERLAY_DIR, 'deeplab_Unet_WeClip'), three_channel_dir,
+                       os.path.join(OVERLAY_DIR, 'deeplab_Unet_WeClip'), alpha)
+    else:
+        shutil.rmtree(os.path.join(OVERLAY_DIR, 'deeplab_Unet_WeClip'))

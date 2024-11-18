@@ -10,39 +10,51 @@
 
 清理所有预测结果目录，重新创建这些目录。
 
-### args
+### 参数
 - 无
 
-### request
+### 请求示例
 - GET 请求，无需传递任何参数。
+```
+bash
+curl -X GET http://localhost:5000/api/clear
+```
+### 成功响应
+- HTTP 状态码 200
+- 响应体（字符串）: "0"
 
-### return
-- 成功清理目录后返回字符串 `"0"`。
+### 失败响应
 - 如果在清理过程中发生错误，会捕获异常并继续执行后续操作。
+- HTTP 状态码 200
+- 响应体（字符串）: "0"
 
 
-## SendImage
+## GetWorkspace
 
 ### url
-- /api/static/result/&lt;model_name&gt;/&lt;path:filename&gt;
+- /api/workspace
 
 ### method
 - GET
 
-发送图像，根据请求中的模型名称和文件名返回相应的图像文件。
+获取 dataSource 数据
 
-### args
-|  args          | required | request type | type |  remarks                  |
-|----------------|----------|--------------|------|---------------------------|
-| model_name     |  true    |    path      | str  | 模型名称  |
-| filename       |  true    |    path      | str  | 文件名  |
+### 参数
+- 无
 
-### request
-- GET 请求，URL 中包含模型名称和文件名。
+### 请求示例
+- GET 请求，无需传递任何参数。
+```
+bash
+curl -X GET http://localhost:5000/api/workspace
+```
+### 成功响应
+- HTTP 状态码 200
+- 响应体（JSON 格式）: 包含工作区数据的 JSON 数组
 
-### return
-- 返回指定模型的预测结果图像文件。
-- 如果模型名称无效，返回错误信息和状态码 404。
+### 失败响应
+- HTTP 状态码 500
+- 响应体（JSON 格式）: 空数组
 
 
 ## Start
@@ -55,18 +67,30 @@
 
 开始预测接口，根据请求中的模型列表调用相应的预测函数，并返回预测结果的路径。
 
-### args
-|  args          | required | request type | type |  remarks                  |
-|----------------|----------|--------------|------|---------------------------|
-| image_url      |  true    |    json      | str  | 图像文件路径  |
-| models         |  true    |    json      | list | 需要使用的模型列表  |
+### 参数
+| 参数名       | 必填 | 请求类型 | 类型   | 说明                           |
+|--------------|------|----------|--------|--------------------------------|
+| image_url    | 是   | json     | list   | 图像文件路径                   |
+| models       | 是   | json     | list   | 需要使用的模型列表             |
 
-### request
+### 请求示例
 ```
 json
-{"image_url": "", "models": ["U-net", "DeepLab", "WeClip"]}
+{
+    "image_url": [
+        "http://localhost:5000/api/static/uploaded/three_channel/ID_0188_Z_0137.png",
+        "http://localhost:5000/api/static/uploaded/three_channel/ID_0189_Z_0132.png",
+        "http://localhost:5000/api/static/uploaded/three_channel/ID_0190_Z_0070.png",
+        "http://localhost:5000/api/static/uploaded/three_channel/ID_0191_Z_0140.png"
+    ],
+    "models": [
+        "U-net",
+        "DeepLab",
+        "WeClip"
+    ]
+}
 ```
-### return
+### 返回示例
 ```
 json
 {
@@ -91,6 +115,72 @@ json
 - 返回一个 JSON 对象，包含原始图像路径和每个模型的预测结果路径。
 
 
+## StaticFile
+
+### url
+- /api/static/&lt;path:filename&gt;
+
+### method
+- GET
+
+发送静态文件接口，根据请求中的文件名返回相应的静态文件。
+
+### 参数
+| 参数名       | 必填 | 请求类型 | 类型   | 说明                           |
+|--------------|------|----------|--------|--------------------------------|
+| filename     | 是   | path     | str    | 文件名                         |
+
+### 请求示例
+- GET 请求，URL 中包含文件名。
+- 例如：`http://localhost:5000/api/static/three_channel/ID_0188_Z_0137.png`
+
+### 返回
+- 返回指定的静态文件。
+- 如果文件不存在，返回 404 错误。
+
+
+## UpdateWorkspace
+
+### url
+- /api/update-workspace
+
+### method
+- POST
+
+更新 workspace 数据
+
+### 参数
+| 参数名       | 必填 | 请求类型 | 类型   | 说明                           |
+|--------------|------|----------|--------|--------------------------------|
+| data         | 是   | json     | list   | 包含工作区数据的 JSON 数组     |
+
+### 请求示例
+```
+json
+{
+    "data": [
+        {
+            "id": 1,
+            "name": "Image1",
+            "url": "http://localhost:5000/api/static/uploaded/three_channel/image1.png"
+        },
+        {
+            "id": 2,
+            "name": "Image2",
+            "url": "http://localhost:5000/api/static/uploaded/three_channel/image2.png"
+        }
+    ]
+}
+```
+### 成功响应
+- HTTP 状态码 200
+- 响应体（JSON 格式）: {"status": "success"}
+
+### 失败响应
+- HTTP 状态码 500
+- 响应体（JSON 格式）: {"status": "error", "message": "Error details"}
+
+
 ## Upload
 
 ### url
@@ -99,25 +189,40 @@ json
 ### method
 - POST
 
-上传文件接口，用于接收前端上传的图像文件，并根据图像的通道数保存为不同的路径。
+上传文件接口
 
-### args
-|  args          | required | request type | type |  remarks                  |
-|----------------|----------|--------------|------|---------------------------|
-| file           |  true    |    form-data | file | 需要上传的图像文件  |
+### 参数
+| 参数名       | 必填 | 请求类型 | 类型   | 说明                           |
+|--------------|------|----------|--------|--------------------------------|
+| files        | 是   | form-data | list   | 文件列表                       |
 
-### request
-- 表单数据，包含一个名为 `file` 的字段，用于上传图像文件。
-
-### return
+### 请求示例
+```
+bash
+curl -X POST http://localhost:5000/api/upload -F "files=@/path/to/image1.png" -F "files=@/path/to/image2.png"
+```
+### 成功响应
+- HTTP 状态码 200
+- 响应体（JSON 格式）: 包含上传文件信息的 JSON 数组
 ```
 json
-{
-    "message": "File uploaded successfully"
-}
+[
+    {
+        "name": "image1.png",
+        "url": "http://localhost:5000/api/static/uploaded/three_channel/image1.png"
+    },
+    {
+        "name": "image2.png",
+        "url": "http://localhost:5000/api/static/uploaded/three_channel/image2.png"
+    }
+]
 ```
-- 成功上传文件后返回的消息。
-- 如果请求中没有文件部分，则返回错误信息和状态码 400。
+### 失败响应
+- HTTP 状态码 400
+- 响应体（JSON 格式）: {"status": "error", "message": "No file part in the request"}
+
+- HTTP 状态码 500
+- 响应体（JSON 格式）: {"status": "error", "message": "Error"}
 
 
 
