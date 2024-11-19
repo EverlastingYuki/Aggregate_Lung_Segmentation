@@ -127,4 +127,5 @@ setViewListLength(uped_img_local_path);
 </template>
 
 <style scoped>
+
 </style>
