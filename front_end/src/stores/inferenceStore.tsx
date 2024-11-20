@@ -4,7 +4,7 @@ import {computed, onMounted, ref, watchEffect} from 'vue';
 import axios from 'axios';
 import type {CheckboxValueType, UploadProps, UploadUserFile} from 'element-plus';
 import {ElMessage} from 'element-plus';
-import {CircleCloseFilled, CirclePlusFilled} from '@element-plus/icons-vue';
+import {CircleCloseFilled, CirclePlusFilled, Edit, Plus} from '@element-plus/icons-vue';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 
 // 定义 Tree 数据结构
@@ -138,10 +138,17 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
                             show-file-list={false}
                             style="height:20px;width:60px;position:absolute;right:-30px"
                         >
-                            <div style="position: absolute;bottom:6.5px">
-                                <el-icon color="#409eff" size="20px"
-                                         onClick={() => _getAppendNode(node)}
-                                ><CirclePlusFilled/></el-icon>
+                            <div style="position: absolute;bottom:1.5vh">
+                                <el-tooltip content="添加图片" placement="top" effect="light">
+                                    <el-button type="primary" icon={Plus} circle
+                                               style="width: 2.2vh;height: 2.2vh;align-content: center"
+                                               onClick={() => _getAppendNode(node)}
+                                    />
+                                </el-tooltip>
+                                <el-tooltip content="重命名工作区" placement="top" effect="light">
+                                    <el-button type="success" icon={Edit} circle
+                                               style="width: 2.2vh;height: 2.2vh;align-content: center"/>
+                                </el-tooltip>
                             </div>
                         </el-upload>
                         <div
@@ -183,7 +190,7 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         }
         uped_img_local_path.value = [];  // 初始化为一个空数组
         for (let i = 0; i < selectedNodes.value.length; i++) {
-            const temp_node = selectedNodes.value[i];
+            let temp_node = selectedNodes.value[i];
 
             // 判断 node.url 是否为 string 类型
             if (typeof temp_node.url === 'string') {
@@ -245,14 +252,14 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         }
     });
     onMounted(async () => {
-  try {
-    // 请求后端获取 dataSource 数据
-    const response = await axios.get('/api/workspace');
-    workspace.value = response.data;
-  } catch (error) {
-    console.error('Failed to fetch workspace:', error);
-  }
-});
+        try {
+            // 请求后端获取 dataSource 数据
+            const response = await axios.get('/api/workspace');
+            workspace.value = response.data;
+        } catch (error) {
+            console.error('Failed to fetch workspace:', error);
+        }
+    });
     return {
         workspace,
         pre_result_img_urls,
