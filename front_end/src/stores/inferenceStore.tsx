@@ -1,8 +1,8 @@
 // src/stores/treeStore.tsx
 import {defineStore} from 'pinia';
-import {computed, onMounted, ref, watchEffect} from 'vue';
+import {computed, onMounted, ref, watchEffect, unref } from 'vue';
 import axios from 'axios';
-import type {CheckboxValueType, UploadProps, UploadUserFile} from 'element-plus';
+import type {CheckboxValueType, UploadProps, UploadUserFile, ClickOutside as vClickOutside} from 'element-plus';
 import {ElMessage} from 'element-plus';
 import {CircleCloseFilled, CirclePlusFilled, Edit, Plus} from '@element-plus/icons-vue';
 import type Node from 'element-plus/es/components/tree/src/model/node';
@@ -45,7 +45,7 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
     const isInferencing = ref(false);
 
     const _handleFileChange: UploadProps['beforeUpload'] = (file) => {
-        if (!['image/jpeg', 'image/png', 'image/tif'].includes(file.type)) {
+        if (!['image/jpeg', 'image/png', 'image/tiff'].includes(file.type)) {
             ElMessage.error('图片格式必须为 JPG、PNG 或 TIF');
             return false;
         }
@@ -100,6 +100,7 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         children.splice(index, 1);
         workspace.value = [...workspace.value];
     };
+    const _rename = (node: Node) => {}
     const sqrtAndCeil = (x: number) => Math.ceil(Math.sqrt(x));
     const setListLength = (list: any) => {
         const sp_number = sqrtAndCeil(list.length);
@@ -147,7 +148,9 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
                                 </el-tooltip>
                                 <el-tooltip content="重命名工作区" placement="top" effect="light">
                                     <el-button type="success" icon={Edit} circle
-                                               style="width: 2.2vh;height: 2.2vh;align-content: center"/>
+                                               style="width: 2.2vh;height: 2.2vh;align-content: center"
+                                               onClick={() => _rename(node)}
+                                    />
                                 </el-tooltip>
                             </div>
                         </el-upload>
