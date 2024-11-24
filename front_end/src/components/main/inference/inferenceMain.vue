@@ -5,16 +5,7 @@ import {ElImage} from 'element-plus'
 import {storeToRefs} from 'pinia'
 import {useInferenceStore} from '@/stores/inferenceStore'
 
-import {
-  Check, CircleCloseFilled,
-  Delete,
-  Edit,
-  Close,
-  Plus,
-  Message,
-  Search,
-  Star,
-} from '@element-plus/icons-vue'
+import {CirclePlus, Close, Plus,} from '@element-plus/icons-vue'
 
 const store = useInferenceStore()
 
@@ -30,6 +21,7 @@ const {
   indeterminate,
   selectedModels,
   models,
+  new_workspace_name,
   isInferencing
 } = storeToRefs(store)
 
@@ -40,6 +32,9 @@ const {
   startInference,
   setListLength,
   setViewListLength,
+    createNewWorkspace,
+        refreshNewWorkspaceName,
+    removeSelectedNodes,
 } = store
 
 setListLength(pre_result_img_urls);
@@ -50,29 +45,44 @@ setViewListLength(uped_img_local_path);
 <template>
   <el-row>
     <!--工作区-->
-    <el-col :span="4" style="border: 2px dashed rgb(159.5, 206.5, 255);border-radius: 3px;padding-top: 2px; max-height: 75vh;flex-direction: column">
-      <div style="height: 4.5vh;border-bottom: 2px dashed rgb(159.5, 206.5, 255);display: flex;flex-direction: row;justify-content: space-between;padding: 0.5vh">
+    <el-col :span="4"
+            style="border: 2px dashed rgb(159.5, 206.5, 255);border-radius: 3px;padding-top: 2px; max-height: 75vh;flex-direction: column">
+      <div
+          style="height: 4.5vh;border-bottom: 2px dashed rgb(159.5, 206.5, 255);display: flex;flex-direction: row;justify-content: space-between;padding: 0.5vh">
         <div style="font-size: 2vh;justify-content: center;align-content: center;color: #409EFF">-工作区</div>
         <div style="align-content: center;">
-          <el-tooltip content="新建工作区" placement="top" effect="light">
-            <el-button type="primary" :icon="Plus" circle style="width: 2.5vh;height: 2.5vh;align-content: center;"/>
-          </el-tooltip>
-          <el-tooltip content="删除所选节点" placement="top" effect="light">
-            <el-button type="danger" :icon="Close" circle style="width: 2.5vh;height: 2.5vh;align-content: center;"/>
+          <el-popover placement="bottom" :width="300" trigger="click" title="新建工作区" @hide="refreshNewWorkspaceName">
+            <template #reference>
+              <el-button type="primary" :icon="Plus" circle style="width: 2.5vh;height: 2.5vh;align-content: center;"/>
+            </template>
+            <template #default>
+              <el-input
+                  v-model="new_workspace_name"
+                  style="width: 240px"
+                  placeholder="请输入新的工作区名称"
+              >
+                <template #prepend >
+        <el-button :icon="CirclePlus" style="color:#409EFF; background-color: rgb(216.8, 235.6, 255)" @click="createNewWorkspace"/>
+      </template>
+              </el-input>
+            </template>
+          </el-popover>
+          <el-tooltip content="删除所选节点" placement="top" effect="light" >
+            <el-button type="danger" :icon="Close" circle style="width: 2.5vh;height: 2.5vh;align-content: center;" @click="removeSelectedNodes"/>
           </el-tooltip>
         </div>
       </div>
       <el-scrollbar style="max-height: 66vh">
         <el-tree
-          style="max-width: 600px"
-          :data="workspace"
-          show-checkbox
-          node-key="id"
-          render-after-expand
-          :expand-on-click-node="false"
-          :render-content="renderContent"
-          @check-change="handleCheckChange"
-      />
+            style="max-width: 600px"
+            :data="workspace"
+            show-checkbox
+            node-key="id"
+            render-after-expand
+            :expand-on-click-node="false"
+            :render-content="renderContent"
+            @check-change="handleCheckChange"
+        />
       </el-scrollbar>
     </el-col>
 

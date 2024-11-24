@@ -1,6 +1,6 @@
 // src/stores/treeStore.tsx
 import {defineStore} from 'pinia';
-import {computed, onMounted, ref, unref, watchEffect} from 'vue';
+import {computed, onMounted, ref, watchEffect} from 'vue';
 import axios from 'axios';
 import type {CheckboxValueType, UploadProps, UploadUserFile} from 'element-plus';
 import {ElMessage, ElPopover} from 'element-plus';
@@ -30,6 +30,7 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         {id: 2, label: '工作区2', children: []},
         {id: 3, label: '工作区3', children: []},
     ]);
+    const new_workspace_name = ref("");
     const selectedNodes = ref<Tree[]>([]);
     const pre_result_img_urls = ref<string[]>([]);
     const uped_img_local_path = ref<string[]>([]);
@@ -71,10 +72,9 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
     };
 
     const _updateBackendWorkspace = async () => {
-        try{
+        try {
             await axios.post('/api/update-workspace', workspace.value);
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Failed to update workspace:', error);
         }
     };
@@ -109,12 +109,55 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         _appendNode.value = node;
     };
     const _remove = (node: Node, data: Tree) => {
-        const parent = node.parent;
-        const children: Tree[] = parent.data.children || parent.data;
-        const index = children.findIndex((d) => d.id === data.id);
-        children.splice(index, 1);
-        workspace.value = [...workspace.value];
+    // 使用 data.id 在 workspace 中查找并删除对应节点
+    const findAndRemoveNode = (tree: Tree[], id: number) => {
+        for (let i = 0; i < tree.length; i++) {
+            if (tree[i].$treeNodeId === id) {
+                tree.splice(i, 1); // 删除找到的节点
+                return true; // 停止递归
+            }
+            if (tree[i].children) {
+                const found = findAndRemoveNode(tree[i].children, id);
+                if (found) return true;
+            }
+        }
+        return false; // 未找到节点
     };
+    findAndRemoveNode(workspace.value, data.id);
+};
+    const _printNode = (node:any) => {
+        console.log("打印节点：", node);
+    };
+
+    const removeSelectedNodes = () => {
+        selectedNodes.value.forEach((node) => {
+            const temp_node = ref<Tree>(
+                {
+                    id: node.$treeNodeId,
+                    label: node.label,
+                    url: node.url,
+                }
+            )
+            _remove(node, temp_node.value);
+        });
+        selectedNodes.value = [];
+        workspace.value = [...workspace.value];
+        _updateBackendWorkspace();
+    };
+    const createNewWorkspace = () => {
+        const newWorkspace: Tree = {
+            id: _id.value++,
+            label: new_workspace_name.value,
+            children: [],
+        };
+        workspace.value.push(newWorkspace);
+        workspace.value = [...workspace.value];
+        _updateBackendWorkspace();
+    };
+    const refreshNewWorkspaceName = () => {
+        new_workspace_name.value = "";
+    };
+
     const sqrtAndCeil = (x: number) => Math.ceil(Math.sqrt(x));
     const setListLength = (list: any) => {
         const sp_number = sqrtAndCeil(list.length);
@@ -128,14 +171,15 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
     };
     // 上传图片
     const updateNodeLabel = (id: number, newLabel: string) => {
-  const node = workspace.value.find(item => item.id === id);
-  console.log("node: ", node);
-  console.log("newLabel: ", newLabel)
-  if (node) {
-    node.label = newLabel; // 直接更新 workspace 中的 label
-    workspace.value = [...workspace.value]; // 强制更新，确保视图刷新
-  }
-};
+        console.log("id: ", id);
+        const node = workspace.value.find(item => item.$treeNodeId === id);
+        console.log("node: ", node);
+        console.log("newLabel: ", newLabel)
+        if (node) {
+            node.label = newLabel; // 直接更新 workspace 中的 label
+            workspace.value = [...workspace.value]; // 强制更新，确保视图刷新
+        }
+    };
 
     const handleAvatarSuccess = (response: any) => {
         ElMessage.success('图片上传成功');
@@ -176,7 +220,7 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
                                 </el-tooltip>
                             </div>
                         </el-upload>
-                        <ElPopover placement="bottom" width={240} trigger="click" title="重命名" >
+                        <ElPopover placement="bottom" width={240} trigger="click" title="重命名">
                             {{
                                 reference: () => (
                                     <el-button type="success" icon={Edit} circle
@@ -185,13 +229,14 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
                                 ),
                                 default: () => <div>
                                     <el-input
-                                    v-model={newLabel.value}
-                                    style="width: 220px"
-                                    placeholder="请输入新的名称"
-                                    prefix-icon={Edit}
-                                    onInput={() => updateNodeLabel(data.id, newLabel.value)}
-                                    onBlur={() => _updateBackendWorkspace()}
-                                />
+                                        v-model={newLabel.value}
+                                        style="width: 220px"
+                                        placeholder="请输入新的名称"
+                                        prefix-icon={Edit}
+                                        onInput={() => updateNodeLabel(node.data.$treeNodeId, newLabel.value)}
+                                        onBlur={() => _updateBackendWorkspace()}
+                                        onFocus={() => _printNode(node)}
+                                    />
                                 </div>
                             }}
                         </ElPopover>
@@ -318,11 +363,15 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         selectedModels,
         models,
         isInferencing,
+        new_workspace_name,
         renderContent,
         handleCheckChange,
         handleCheckAll,
         startInference,
         setListLength,
         setViewListLength,
+        createNewWorkspace,
+        refreshNewWorkspaceName,
+        removeSelectedNodes,
     };
 });
