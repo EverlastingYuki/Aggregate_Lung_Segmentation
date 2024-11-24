@@ -1,10 +1,10 @@
 // src/stores/treeStore.tsx
 import {defineStore} from 'pinia';
-import {computed, onMounted, ref, watchEffect, unref } from 'vue';
+import {computed, onMounted, ref, unref, watchEffect} from 'vue';
 import axios from 'axios';
-import type {CheckboxValueType, UploadProps, UploadUserFile, ClickOutside as vClickOutside} from 'element-plus';
-import {ElMessage} from 'element-plus';
-import {CircleCloseFilled, CirclePlusFilled, Edit, Plus} from '@element-plus/icons-vue';
+import type {CheckboxValueType, UploadProps, UploadUserFile} from 'element-plus';
+import {ElMessage, ElPopover} from 'element-plus';
+import {CircleCloseFilled, Edit, Plus} from '@element-plus/icons-vue';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 
 // 定义 Tree 数据结构
@@ -21,6 +21,9 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
     const _fileProcessing = ref(false);
     const _fileList = ref<UploadUserFile[]>([]);
     const _appendNode = ref<Node | null>(null);
+    const _rename_popover = ref();
+    const _rename_button_ref = ref();
+    const _renamed_workspace = ref<string>('');
 
     const workspace = ref<Tree[]>([
         {id: 1, label: '工作区1', children: []},
@@ -66,6 +69,15 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         }
         return false;
     };
+
+    const _updateBackendWorkspace = async () => {
+        try{
+            await axios.post('/api/update-workspace', workspace.value);
+        }
+        catch (error) {
+            console.error('Failed to update workspace:', error);
+        }
+    };
     const _append = async (data: Tree, files: File[]) => {
         try {
             const formData = new FormData();
@@ -74,7 +86,10 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
             handleAvatarSuccess(response.data);
 
             const uploadedFiles = response.data;
-            uploadedFiles.forEach((file: { name: string, url: string }) => {
+            uploadedFiles.forEach((file: {
+                name: string,
+                url: string
+            }) => {
                 const newNode: Tree = {
                     id: _id.value++,
                     label: file.name,
@@ -100,7 +115,6 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         children.splice(index, 1);
         workspace.value = [...workspace.value];
     };
-    const _rename = (node: Node) => {}
     const sqrtAndCeil = (x: number) => Math.ceil(Math.sqrt(x));
     const setListLength = (list: any) => {
         const sp_number = sqrtAndCeil(list.length);
@@ -113,10 +127,24 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         view_len_view.value = 26;
     };
     // 上传图片
+    const updateNodeLabel = (id: number, newLabel: string) => {
+  const node = workspace.value.find(item => item.id === id);
+  console.log("node: ", node);
+  console.log("newLabel: ", newLabel)
+  if (node) {
+    node.label = newLabel; // 直接更新 workspace 中的 label
+    workspace.value = [...workspace.value]; // 强制更新，确保视图刷新
+  }
+};
+
     const handleAvatarSuccess = (response: any) => {
         ElMessage.success('图片上传成功');
     };
-    const renderContent = (h: any, {node, data}: { node: Node; data: Tree }) => {
+    const renderContent = (h: any, {node, data}: {
+        node: Node;
+        data: Tree
+    }) => {
+        const newLabel = ref(node.label);
         return (
             <span
                 style={{
@@ -137,7 +165,7 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
                             limit={100}
                             before-upload={_handleFileChange}
                             show-file-list={false}
-                            style="height:20px;width:60px;position:absolute;right:-30px"
+                            style="height:20px;width:60px;position:absolute;right:-2vh;top:1.3vh"
                         >
                             <div style="position: absolute;bottom:1.5vh">
                                 <el-tooltip content="添加图片" placement="top" effect="light">
@@ -146,14 +174,28 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
                                                onClick={() => _getAppendNode(node)}
                                     />
                                 </el-tooltip>
-                                <el-tooltip content="重命名工作区" placement="top" effect="light">
-                                    <el-button type="success" icon={Edit} circle
-                                               style="width: 2.2vh;height: 2.2vh;align-content: center"
-                                               onClick={() => _rename(node)}
-                                    />
-                                </el-tooltip>
                             </div>
                         </el-upload>
+                        <ElPopover placement="bottom" width={240} trigger="click" title="重命名" >
+                            {{
+                                reference: () => (
+                                    <el-button type="success" icon={Edit} circle
+                                               style="width: 2.2vh;height: 2.2vh;align-content: center;margin-right:0.75vh"
+                                    />
+                                ),
+                                default: () => <div>
+                                    <el-input
+                                    v-model={newLabel.value}
+                                    style="width: 220px"
+                                    placeholder="请输入新的名称"
+                                    prefix-icon={Edit}
+                                    onInput={() => updateNodeLabel(data.id, newLabel.value)}
+                                    onBlur={() => _updateBackendWorkspace()}
+                                />
+                                </div>
+                            }}
+                        </ElPopover>
+
                         <div
                             style={{
                                 marginLeft: '-10px',
