@@ -1,11 +1,10 @@
 <script setup lang="tsx">
 // 导入系统包
 import {storeToRefs} from 'pinia'
-
 // 导入用户store
 import {useAsideStore} from "@/stores/asideStore"
 const { selectedAsideFunction } = storeToRefs(useAsideStore())
-
+import {RouterView} from 'vue-router'
 // 用户组件的导入
 import asideMain from '@/components/aside/asideMain.vue'
 import inferenceMain from '@/components/main/inference/inferenceMain.vue'
@@ -32,8 +31,9 @@ import historyMain from '@/components/main/history/historyMain.vue'
         </el-aside>
         <!-- 主体部分 -->
         <el-main style="padding: 5px;padding-top: 20px">
-          <inferenceMain v-if="selectedAsideFunction === '对比推理'"/>
-          <historyMain v-if="selectedAsideFunction === '历史记录'"/>
+<!--          <inferenceMain v-if="selectedAsideFunction === '对比推理'"/>-->
+<!--          <historyMain v-if="selectedAsideFunction === '历史记录'"/>-->
+          <RouterView></RouterView>
         </el-main>
       </el-container>
     </el-container>
