@@ -143,6 +143,7 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         selectedNodes.value = [];
         workspace.value = [...workspace.value];
         _updateBackendWorkspace();
+        uped_img_local_path.value = [];
     };
     const createNewWorkspace = () => {
         const newWorkspace: Tree = {
@@ -235,7 +236,6 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
                                         prefix-icon={Edit}
                                         onInput={() => updateNodeLabel(node.data.$treeNodeId, newLabel.value)}
                                         onBlur={() => _updateBackendWorkspace()}
-                                        onFocus={() => _printNode(node)}
                                     />
                                 </div>
                             }}
