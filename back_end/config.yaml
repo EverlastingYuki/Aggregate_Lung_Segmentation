@@ -11,6 +11,9 @@ deeplab_dir: front_end/static/result/deeplab
 Unet_dir: front_end/static/result/Unet
 WeClip_dir: front_end/static/result/WeClip
 
+# 历史记录文件
+history_path: "back_end/history.json"
+
 #工作区
 workspace_path: "back_end/workplace.json"
 

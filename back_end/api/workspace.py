@@ -62,7 +62,15 @@ json
     if 'files' not in request.files:
         return jsonify({"status": "error", "message": "No file part in the request"}), 400
 
+    os.makedirs(ORIGINAL_DIR, exist_ok=True)
+    os.makedirs(ONE_CHANNEL_DIR, exist_ok=True)
+    os.makedirs(THREE_CHANNEL_DIR, exist_ok=True)
+
     files = request.files.getlist('files')
+    # 将图片后缀名由.tif改为.png
+    for file in files:
+        if file.filename.endswith('.tif'):
+            file.filename = file.filename.replace('.tif', '.png')
     response_data = []
 
     for file in files:

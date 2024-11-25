@@ -1,0 +1,30 @@
+[
+    {
+        "original": [
+            "http://localhost:5000/api/static/history/20241125_165716/original/ID_0188_Z_0137.png",
+            "http://localhost:5000/api/static/history/20241125_165716/original/ID_0189_Z_0132.png",
+            "http://localhost:5000/api/static/history/20241125_165716/original/ID_0190_Z_0070.png",
+            "http://localhost:5000/api/static/history/20241125_165716/original/ID_0191_Z_0140.png",
+            "http://localhost:5000/api/static/history/20241125_165716/original/ID_0192_Z_0064.png"
+        ],
+        "predict": [
+            "http://localhost:5000/api/static/history/20241125_165716/predict/ID_0188_Z_0137.png",
+            "http://localhost:5000/api/static/history/20241125_165716/predict/ID_0189_Z_0132.png",
+            "http://localhost:5000/api/static/history/20241125_165716/predict/ID_0190_Z_0070.png",
+            "http://localhost:5000/api/static/history/20241125_165716/predict/ID_0191_Z_0140.png",
+            "http://localhost:5000/api/static/history/20241125_165716/predict/ID_0192_Z_0064.png"
+        ],
+        "model": [
+            "U-net",
+            "DeepLab"
+        ],
+        "datetime": "2024-11-25 16:57:17",
+        "filename": [
+            "ID_0188_Z_0137.png",
+            "ID_0189_Z_0132.png",
+            "ID_0190_Z_0070.png",
+            "ID_0191_Z_0140.png",
+            "ID_0192_Z_0064.png"
+        ]
+    }
+]

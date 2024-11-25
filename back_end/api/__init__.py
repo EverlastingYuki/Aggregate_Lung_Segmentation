@@ -24,6 +24,7 @@ WECLIP_DIR = config['WeClip_dir']
 OVERLAY_DIR = config['overlay_dir']
 
 WORKSPACE_PATH = config['workspace_path']
+HISTORY_PATH = config['history_path']
 
 # 定义公开接口
 __all__ = [
@@ -39,7 +40,8 @@ __all__ = [
     'UNET_DIR',
     'WECLIP_DIR',
     'OVERLAY_DIR',
-    'WORKSPACE_PATH'
+    'WORKSPACE_PATH',
+    'HISTORY_PATH'
 ]
 
 # 延迟导入 predict 和 workspace

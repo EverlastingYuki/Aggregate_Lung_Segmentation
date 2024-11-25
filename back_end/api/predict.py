@@ -1,8 +1,10 @@
 import os
 import shutil
 import json
-import yaml
+from time import sleep
 
+import yaml
+import datetime
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -82,7 +84,9 @@ json
 
     clear_results()
     temp_dir = os.path.join(STATIC_DIR, 'temp')
-    shutil.rmtree(temp_dir)
+    if os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir)
+    os.mkdir(temp_dir)
 
     one_channel_temp_dir = os.path.join(temp_dir, 'one_channel')
     three_channel_temp_dir = os.path.join(temp_dir, 'three_channel')
@@ -101,12 +105,17 @@ json
 
     # 调用预测函数
     if 'U-net' in models:
+        print('U-net处理中')
         predict_Unet(PROJECT_ROOT, one_channel_temp_dir, three_channel_temp_dir, UNET_DIR)
     if 'DeepLab' in models:
+        print('DeepLab处理中')
         predict_deeplab(PROJECT_ROOT, one_channel_temp_dir, three_channel_temp_dir, DEEPLAB_DIR)
         # deeplab_postprocess()
     if 'WeClip' in models:
-        predict_WeClip(PROJECT_ROOT, one_channel_temp_dir, three_channel_temp_dir, UNET_DIR)
+        print('WeClip处理中')
+        predict_WeClip(PROJECT_ROOT, one_channel_temp_dir, three_channel_temp_dir, WECLIP_DIR)
+    # 不等0.1s会有奇奇怪怪的bug
+    sleep(0.1)
     process_image(three_channel_temp_dir)
     shutil.rmtree(temp_dir)
 
@@ -114,6 +123,69 @@ json
     for i in os.listdir(OVERLAY_DIR):
         response_data[i] = [f'http://localhost:5000/api/static/result/overlay/{i}/{j}' for j in
                             os.listdir(os.path.join(OVERLAY_DIR, i))]
+
+
+
+    # 获取当前时间
+    current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    history_original_dir = os.path.join(STATIC_DIR, 'history', current_time, 'original')
+    history_predict_dir = os.path.join(STATIC_DIR, 'history', current_time, 'predict')
+
+    os.makedirs(os.path.join(STATIC_DIR, 'history'), exist_ok=True)
+    os.makedirs(history_original_dir, exist_ok=True)
+    os.makedirs(history_predict_dir, exist_ok=True)
+
+    # 保存原图
+    original_overlay_dir = os.path.join(STATIC_DIR, 'result', 'overlay', 'original')
+    for image_name in os.listdir(original_overlay_dir):
+        original_src = os.path.join(original_overlay_dir, image_name)
+        original_dest = os.path.join(history_original_dir, image_name)
+        shutil.copy(original_src, original_dest)
+
+    # 保存预测结果
+    predict_dirs = [
+        'deeplab_Unet_WeClip',
+        'Unet_WeClip',
+        'deeplab_WeClip',
+        'deeplab_Unet',
+        'WeClip',
+        'Unet',
+        'deeplab'
+    ]
+
+    for predict_dir in predict_dirs:
+        predict_overlay_dir = os.path.join(STATIC_DIR, 'result', 'overlay', predict_dir)
+        if os.path.exists(predict_overlay_dir) and os.listdir(predict_overlay_dir):
+            for image_name in os.listdir(predict_overlay_dir):
+                predict_src = os.path.join(predict_overlay_dir, image_name)
+                predict_dest = os.path.join(history_predict_dir, image_name)
+                shutil.copy(predict_src, predict_dest)
+            break
+
+    # 更新历史记录
+    original_urls = [f'http://localhost:5000/api/static/history/{current_time}/original/{image_name}' for image_name in
+                     os.listdir(history_original_dir)]
+    predict_urls = [f'http://localhost:5000/api/static/history/{current_time}/predict/{image_name}' for image_name in
+                    os.listdir(history_predict_dir)]
+
+    entry = {
+        "original": original_urls,
+        "predict": predict_urls,
+        "model": models,
+        "datetime": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "filename": [os.path.basename(url) for url in image_urls]
+    }
+
+    if os.path.exists(HISTORY_PATH):
+        with open(HISTORY_PATH, 'r', encoding='utf-8') as f:
+            history = json.load(f)
+    else:
+        history = []
+
+    history.insert(0, entry)
+
+    with open(HISTORY_PATH, 'w',encoding='utf-8') as f:
+        json.dump(history, f, indent=4)
 
     return jsonify(response_data)
 
