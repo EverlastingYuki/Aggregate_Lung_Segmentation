@@ -69,7 +69,6 @@ onMounted(async () => {
       >
         <div style="padding: 10px;">
             <h4>时间: {{ items[0].datetime }} </h4>
-            <p>文件: {{ items[0].filename }} </p>
             <p>{{ items[0].model }}</p>
           </div>
         <div v-for="item in items"
@@ -85,6 +84,7 @@ onMounted(async () => {
               :min-scale="0.2"
               :preview-src-list="[item.original]"
               fit="cover"
+              lazy
           />
           <el-image
               style="margin-right: 80px;width: 200px;"
@@ -94,8 +94,9 @@ onMounted(async () => {
               :min-scale="0.2"
               :preview-src-list="[item.predict]"
               fit="cover"
+              lazy
           />
-
+          <p>文件: {{ item.filename }} </p>
       </div>
         </el-card>
     </div>
