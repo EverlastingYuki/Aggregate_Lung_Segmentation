@@ -74,6 +74,11 @@ json
     response_data = []
 
     for file in files:
+        if file.filename.endswith('.jpg'):
+            file.filename = file.filename.replace('.jpg', '.png')
+    response_data = []
+
+    for file in files:
         original_img_path = os.path.join(ORIGINAL_DIR, file.filename)
         one_channel_path = os.path.join(ONE_CHANNEL_DIR, file.filename)
         three_channel_path = os.path.join(THREE_CHANNEL_DIR, file.filename)

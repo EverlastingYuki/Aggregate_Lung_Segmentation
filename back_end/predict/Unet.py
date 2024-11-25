@@ -32,7 +32,6 @@ def predict_Unet(project_root, one_channel_dir, three_channel_dir, Unet_dir):
     except:
         pass
     os.makedirs(Unet_dir, exist_ok=True)
-
     img_test = walk_dir(one_channel_dir)
     with open(os.path.join(project_root, "back_end", "UNet", "txt", "test.txt"), 'w') as f:
         for index in range(len(img_test)):
