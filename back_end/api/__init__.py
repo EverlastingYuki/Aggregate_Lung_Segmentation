@@ -47,3 +47,4 @@ __all__ = [
 # 延迟导入 predict 和 workspace
 from back_end.api import predict
 from back_end.api import workspace
+from back_end.api import history
