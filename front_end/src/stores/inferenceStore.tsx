@@ -1,6 +1,6 @@
 // src/stores/treeStore.tsx
 import {defineStore} from 'pinia';
-import {computed, onMounted, ref, watchEffect} from 'vue';
+import {computed, onMounted, reactive, ref, watchEffect} from 'vue';
 import axios from 'axios';
 import type {CheckboxValueType, UploadProps, UploadUserFile} from 'element-plus';
 import {ElMessage, ElPopover} from 'element-plus';
@@ -33,6 +33,15 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
     const new_workspace_name = ref("");
     const selectedNodes = ref<Tree[]>([]);
     const pre_result_img_urls = ref<string[]>([]);
+    const pre_results = reactive({
+        Unet: [],
+        Unet_WeClip: [],
+        WeClip: [],
+        deeplab: [],
+        deeplab_Unet: [],
+        deeplab_Unet_WeClip: [],
+        deeplab_WeClip: [],
+    });
     const uped_img_local_path = ref<string[]>([]);
     const img_len = ref(0);
     const view_len = ref(0);
@@ -161,8 +170,8 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
 
     const sqrtAndCeil = (x: number) => Math.ceil(Math.sqrt(x));
     const setListLength = (list: any) => {
-        const sp_number = sqrtAndCeil(list.length);
-        img_len.value = 25 / sp_number;
+        // const sp_number = sqrtAndCeil(list.length);
+        img_len.value = 25.8 / 7;
         view_len.value = 26;
     };
     const setViewListLength = (list: any) => {
@@ -314,6 +323,13 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
                     ...response.data.deeplab,
                     ...response.data.WeClip,
                 ];
+                pre_results.Unet = response.data.Unet;
+                pre_results.deeplab = response.data.deeplab;
+                pre_results.WeClip = response.data.WeClip;
+                pre_results.Unet_WeClip = response.data.Unet_WeClip;
+                pre_results.deeplab_Unet = response.data.deeplab_Unet;
+                pre_results.deeplab_WeClip = response.data.deeplab_WeClip;
+                pre_results.deeplab_Unet_WeClip = response.data.deeplab_Unet_WeClip;
                 setListLength(pre_result_img_urls);
             } else {
                 ElMessage.error('推理失败');
@@ -364,6 +380,7 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         models,
         isInferencing,
         new_workspace_name,
+        pre_results,
         renderContent,
         handleCheckChange,
         handleCheckAll,

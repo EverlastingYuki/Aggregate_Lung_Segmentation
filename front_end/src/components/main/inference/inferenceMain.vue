@@ -22,7 +22,8 @@ const {
   selectedModels,
   models,
   new_workspace_name,
-  isInferencing
+  isInferencing,
+  pre_results,
 } = storeToRefs(store)
 
 const {
@@ -141,18 +142,75 @@ setViewListLength(uped_img_local_path);
           </el-button>
         </el-col>
         <el-col :span="24">
-          <div style="height: 3vw;"></div>
+          <div style="height: 1.5vw;"></div>
+        </el-col>
+        <el-col :span="24" align="middle">
+          <div :style="{ width: view_len+1 + 'vw'}" style="display:flex;flex-direction: row">
+            <div class="result_v_mod" :style="{ width: img_len + 'vw' }"><el-tag round>U</el-tag></div>
+            <div class="result_v_mod" :style="{ width: img_len + 'vw' }"><el-tag round>D</el-tag></div>
+            <div class="result_v_mod" :style="{ width: img_len + 'vw' }"><el-tag round>W</el-tag></div>
+            <div class="result_v_mod" :style="{ width: img_len + 'vw' }"><el-tag round>U+W</el-tag></div>
+            <div class="result_v_mod" :style="{ width: img_len + 'vw' }"><el-tag round>D+U</el-tag></div>
+            <div class="result_v_mod" :style="{ width: img_len + 'vw' }"><el-tag round>D+W</el-tag></div>
+            <div class="result_v_mod" :style="{ width: img_len + 'vw' }"><el-tag round>D+U+W</el-tag></div>
+          </div>
+          <div style="height: 0.3vw"></div>
         </el-col>
         <el-col :span="24" align="middle">
           <!-- 推理结果展示 -->
           <div class="pre_result_show"
                :style="{ width: view_len+1 + 'vw', height: view_len + 'vw', overflowY: 'auto' }"
-               style="border: 2px dashed rgb(159.5, 206.5, 255);border-radius: 6px;">
-            <el-image :style="{ width: img_len + 'vw', height: img_len+0.2 + 'vw' }"
-                      v-for="(url, index) in pre_result_img_urls"
+               style="border: 2px dashed rgb(159.5, 206.5, 255);border-radius: 6px;display:flex;flex-direction: row">
+            <div class="result_v_mod" :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
+              <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
+                      v-for="(url, index) in pre_results.Unet"
                       :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
-                      :preview-src-list="pre_result_img_urls"
+                      :preview-src-list="pre_results.Unet"
                       :initial-index=index fit="cover"/>
+            </div>
+            <div class="result_v_mod" :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
+              <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
+                      v-for="(url, index) in pre_results.deeplab"
+                      :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
+                      :preview-src-list="pre_results.deeplab"
+                      :initial-index=index fit="cover"/>
+            </div>
+            <div class="result_v_mod" :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
+              <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
+                      v-for="(url, index) in pre_results.WeClip"
+                      :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
+                      :preview-src-list="pre_results.WeClip"
+                      :initial-index=index fit="cover"/>
+            </div>
+            <div class="result_v_mod" :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
+              <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
+                      v-for="(url, index) in pre_results.Unet_WeClip"
+                      :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
+                      :preview-src-list="pre_results.Unet_WeClip"
+                      :initial-index=index fit="cover"/>
+            </div>
+            <div class="result_v_mod" :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
+              <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
+                      v-for="(url, index) in pre_results.deeplab_Unet"
+                      :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
+                      :preview-src-list="pre_results.deeplab_Unet"
+                      :initial-index=index fit="cover"/>
+            </div>
+            <div class="result_v_mod" :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
+              <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
+                      v-for="(url, index) in pre_results.deeplab_WeClip"
+                      :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
+                      :preview-src-list="pre_results.deeplab_WeClip"
+                      :initial-index=index fit="cover"/>
+            </div>
+            <div class="result_v_mod" :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
+              <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
+                      v-for="(url, index) in pre_results.deeplab_Unet_WeClip"
+                      :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
+                      :preview-src-list="pre_results.deeplab_Unet_WeClip"
+                      :initial-index=index fit="cover"/>
+            </div>
+
           </div>
         </el-col>
       </el-row>
@@ -161,5 +219,9 @@ setViewListLength(uped_img_local_path);
 </template>
 
 <style scoped>
-
+.result_v_mod {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 </style>
