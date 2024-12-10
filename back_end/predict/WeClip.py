@@ -18,8 +18,6 @@ def predict_WeClip(project_root="", one_channel_dir="", three_channel_dir="", We
     output_dir = os.path.join(proj_r, WeClip_dir)
 
 
-    print(get_source_img_path, get_fake_img_path)
-
     def get_filenames_without_extension(directory):
         filenames = []
         for filename in os.listdir(directory):

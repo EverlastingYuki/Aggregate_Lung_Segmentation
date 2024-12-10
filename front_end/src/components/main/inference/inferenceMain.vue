@@ -6,6 +6,7 @@ import {storeToRefs} from 'pinia'
 import {useInferenceStore} from '@/stores/inferenceStore'
 
 import {CirclePlus, Close, Plus,} from '@element-plus/icons-vue'
+import {VueDraggable} from 'vue-draggable-plus'
 
 const store = useInferenceStore()
 
@@ -24,6 +25,9 @@ const {
   new_workspace_name,
   isInferencing,
   pre_results,
+  draggable_tag_list,
+  mapping_tag_dict,
+  showed_draggable_tag_list,
 } = storeToRefs(store)
 
 const {
@@ -33,12 +37,12 @@ const {
   startInference,
   setListLength,
   setViewListLength,
-    createNewWorkspace,
-        refreshNewWorkspaceName,
-    removeSelectedNodes,
+  createNewWorkspace,
+  refreshNewWorkspaceName,
+  removeSelectedNodes,
 } = store
 
-setListLength(pre_result_img_urls);
+
 setViewListLength(uped_img_local_path);
 
 </script>
@@ -52,7 +56,8 @@ setViewListLength(uped_img_local_path);
           style="height: 4.5vh;border-bottom: 2px dashed rgb(159.5, 206.5, 255);display: flex;flex-direction: row;justify-content: space-between;padding: 0.5vh">
         <div style="font-size: 2vh;justify-content: center;align-content: center;color: #409EFF">-工作区</div>
         <div style="align-content: center;">
-          <el-popover placement="bottom" :width="300" trigger="click" title="新建工作区" @hide="refreshNewWorkspaceName">
+          <el-popover placement="bottom" :width="300" trigger="click" title="新建工作区"
+                      @hide="refreshNewWorkspaceName">
             <template #reference>
               <el-button type="primary" :icon="Plus" circle style="width: 2.5vh;height: 2.5vh;align-content: center;"/>
             </template>
@@ -62,14 +67,16 @@ setViewListLength(uped_img_local_path);
                   style="width: 240px"
                   placeholder="请输入新的工作区名称"
               >
-                <template #prepend >
-        <el-button :icon="CirclePlus" style="color:#409EFF; background-color: rgb(216.8, 235.6, 255)" @click="createNewWorkspace"/>
-      </template>
+                <template #prepend>
+                  <el-button :icon="CirclePlus" style="color:#409EFF; background-color: rgb(216.8, 235.6, 255)"
+                             @click="createNewWorkspace"/>
+                </template>
               </el-input>
             </template>
           </el-popover>
-          <el-tooltip content="删除所选节点" placement="top" effect="light" >
-            <el-button type="danger" :icon="Close" circle style="width: 2.5vh;height: 2.5vh;align-content: center;" @click="removeSelectedNodes"/>
+          <el-tooltip content="删除所选节点" placement="top" effect="light">
+            <el-button type="danger" :icon="Close" circle style="width: 2.5vh;height: 2.5vh;align-content: center;"
+                       @click="removeSelectedNodes"/>
           </el-tooltip>
         </div>
       </div>
@@ -145,15 +152,24 @@ setViewListLength(uped_img_local_path);
           <div style="height: 1.5vw;"></div>
         </el-col>
         <el-col :span="24" align="middle">
-          <div :style="{ width: view_len+1 + 'vw'}" style="display:flex;flex-direction: row">
-            <div class="result_v_mod" :style="{ width: img_len + 'vw' }"><el-tag round>U</el-tag></div>
-            <div class="result_v_mod" :style="{ width: img_len + 'vw' }"><el-tag round>D</el-tag></div>
-            <div class="result_v_mod" :style="{ width: img_len + 'vw' }"><el-tag round>W</el-tag></div>
-            <div class="result_v_mod" :style="{ width: img_len + 'vw' }"><el-tag round>U+W</el-tag></div>
-            <div class="result_v_mod" :style="{ width: img_len + 'vw' }"><el-tag round>D+U</el-tag></div>
-            <div class="result_v_mod" :style="{ width: img_len + 'vw' }"><el-tag round>D+W</el-tag></div>
-            <div class="result_v_mod" :style="{ width: img_len + 'vw' }"><el-tag round>D+U+W</el-tag></div>
-          </div>
+          <VueDraggable
+              class="draggable-container1"
+              v-model="showed_draggable_tag_list"
+              :animation="150"
+              ghostClass="ghost"
+              group="people"
+              :style="{ width: view_len+1 + 'vw'}"
+              style="display:flex;flex-direction: row"
+          >
+            <el-popover v-for="(item, index) in showed_draggable_tag_list" :key="index" placement="top" :width="100"
+                        trigger="hover">
+              <template #reference>
+                <el-tag round :style="{ backgroundColor: item.bg_color, width: img_len + 'vw', border: '2px solid ' + item.border_color}"></el-tag>
+              </template>
+              <div>{{ item.name }}</div>
+            </el-popover>
+          </VueDraggable>
+
           <div style="height: 0.3vw"></div>
         </el-col>
         <el-col :span="24" align="middle">
@@ -161,54 +177,13 @@ setViewListLength(uped_img_local_path);
           <div class="pre_result_show"
                :style="{ width: view_len+1 + 'vw', height: view_len + 'vw', overflowY: 'auto' }"
                style="border: 2px dashed rgb(159.5, 206.5, 255);border-radius: 6px;display:flex;flex-direction: row">
-            <div class="result_v_mod" :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
+
+            <div v-for="(item, index) in showed_draggable_tag_list" :key="index" class="result_v_mod" :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
               <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
-                      v-for="(url, index) in pre_results.Unet"
-                      :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
-                      :preview-src-list="pre_results.Unet"
-                      :initial-index=index fit="cover"/>
-            </div>
-            <div class="result_v_mod" :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
-              <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
-                      v-for="(url, index) in pre_results.deeplab"
-                      :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
-                      :preview-src-list="pre_results.deeplab"
-                      :initial-index=index fit="cover"/>
-            </div>
-            <div class="result_v_mod" :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
-              <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
-                      v-for="(url, index) in pre_results.WeClip"
-                      :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
-                      :preview-src-list="pre_results.WeClip"
-                      :initial-index=index fit="cover"/>
-            </div>
-            <div class="result_v_mod" :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
-              <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
-                      v-for="(url, index) in pre_results.Unet_WeClip"
-                      :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
-                      :preview-src-list="pre_results.Unet_WeClip"
-                      :initial-index=index fit="cover"/>
-            </div>
-            <div class="result_v_mod" :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
-              <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
-                      v-for="(url, index) in pre_results.deeplab_Unet"
-                      :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
-                      :preview-src-list="pre_results.deeplab_Unet"
-                      :initial-index=index fit="cover"/>
-            </div>
-            <div class="result_v_mod" :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
-              <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
-                      v-for="(url, index) in pre_results.deeplab_WeClip"
-                      :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
-                      :preview-src-list="pre_results.deeplab_WeClip"
-                      :initial-index=index fit="cover"/>
-            </div>
-            <div class="result_v_mod" :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
-              <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
-                      v-for="(url, index) in pre_results.deeplab_Unet_WeClip"
-                      :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
-                      :preview-src-list="pre_results.deeplab_Unet_WeClip"
-                      :initial-index=index fit="cover"/>
+                        v-for="(url, index) in pre_results[mapping_tag_dict[item.name]]"
+                        :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
+                        :preview-src-list="pre_results[mapping_tag_dict[item.name]]"
+                        :initial-index=index fit="cover"/>
             </div>
 
           </div>
