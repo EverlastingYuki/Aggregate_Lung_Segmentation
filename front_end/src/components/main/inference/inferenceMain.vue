@@ -5,7 +5,7 @@ import {ElImage} from 'element-plus'
 import {storeToRefs} from 'pinia'
 import {useInferenceStore} from '@/stores/inferenceStore'
 
-import {CirclePlus, Close, Plus,} from '@element-plus/icons-vue'
+import {CirclePlus, Close, Plus, Tools,} from '@element-plus/icons-vue'
 import {VueDraggable} from 'vue-draggable-plus'
 
 const store = useInferenceStore()
@@ -40,6 +40,7 @@ const {
   createNewWorkspace,
   refreshNewWorkspaceName,
   removeSelectedNodes,
+  dobleClickToTransferTag,
 } = store
 
 
@@ -151,25 +152,56 @@ setViewListLength(uped_img_local_path);
         <el-col :span="24">
           <div style="height: 1.5vw;"></div>
         </el-col>
-        <el-col :span="24" align="middle">
+        <el-col :span="24" align="middle" style="position: relative;">
           <VueDraggable
               class="draggable-container1"
               v-model="showed_draggable_tag_list"
-              :animation="150"
+              :animation="100"
               ghostClass="ghost"
               group="people"
               :style="{ width: view_len+1 + 'vw'}"
-              style="display:flex;flex-direction: row"
+              style="display:flex;flex-direction: row;"
           >
-            <el-popover v-for="(item, index) in showed_draggable_tag_list" :key="index" placement="top" :width="100"
+<!--            <el-tag round-->
+<!--                    v-for="(item, index) in showed_draggable_tag_list" :key="index"-->
+<!--                        :style="{ backgroundColor: item.bg_color, width: img_len + 'vw', border: '2px solid ' + item.border_color}"></el-tag>-->
+            <div v-for="(item, index) in showed_draggable_tag_list" :key="index" >
+              <el-popover placement="top" :width="100"
                         trigger="hover">
               <template #reference>
-                <el-tag round :style="{ backgroundColor: item.bg_color, width: img_len + 'vw', border: '2px solid ' + item.border_color}"></el-tag>
+                <el-tag round
+                        @dblclick="() => dobleClickToTransferTag(item.name)"
+                        :style="{ backgroundColor: item.bg_color, width: img_len + 'vw', border: '2px solid ' + item.border_color}"></el-tag>
               </template>
               <div>{{ item.name }}</div>
             </el-popover>
-          </VueDraggable>
+            </div>
 
+          </VueDraggable>
+          <el-popover placement="left" :width="310" trigger="click" title="请将不需要的标签拖拽至此">
+            <template #reference>
+              <el-tag round type="primary" size="large" style="position: absolute;top: 0;left:3.5vw">
+                <el-icon>
+                  <Tools/>
+                </el-icon>
+              </el-tag>
+            </template>
+            <VueDraggable
+                class="draggable-container0"
+                v-model="draggable_tag_list"
+                :animation="100"
+                ghostClass="ghost"
+                group="people"
+                style="height: 200px; width: 270px; border: 2px solid #a0cfff;border-radius: 3px;padding: 3px; overflow: auto"
+            >
+              <div v-for="(item, index) in draggable_tag_list" :key="index" style="padding: 2px">
+                <el-tag round
+                        @dblclick="() => dobleClickToTransferTag(item.name)"
+                        :style="{ backgroundColor: item.bg_color, width: 4 + 'vw', border: '2px solid ' + item.border_color}"></el-tag>
+              {{ item.name }}
+              </div>
+            </VueDraggable>
+          </el-popover>
           <div style="height: 0.3vw"></div>
         </el-col>
         <el-col :span="24" align="middle">
@@ -178,7 +210,8 @@ setViewListLength(uped_img_local_path);
                :style="{ width: view_len+1 + 'vw', height: view_len + 'vw', overflowY: 'auto' }"
                style="border: 2px dashed rgb(159.5, 206.5, 255);border-radius: 6px;display:flex;flex-direction: row">
 
-            <div v-for="(item, index) in showed_draggable_tag_list" :key="index" class="result_v_mod" :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
+            <div v-for="(item, index) in showed_draggable_tag_list" :key="index" class="result_v_mod"
+                 :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
               <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
                         v-for="(url, index) in pre_results[mapping_tag_dict[item.name]]"
                         :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"

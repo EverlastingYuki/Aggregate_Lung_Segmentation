@@ -15,6 +15,9 @@ interface Tree {
     children?: Tree[];
 }
 
+interface DraggableResultTag {
+}
+
 export const useInferenceStore = defineStore('useInferenceStore', () => {
     const _id = ref(1000);
     const _imgList = ref<File[]>([]);
@@ -358,6 +361,48 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         }
     };
 
+    const dobleClickToTransferTag = (tag_name:any) => {
+        let flag = "开始";
+        let index = 0;
+        let temp0 = {};
+        if(flag === "开始"){
+            for(let i = 0; i < showed_draggable_tag_list.value.length; i++){
+                if(showed_draggable_tag_list.value[i].name === tag_name){
+                    flag = "list1成功";
+                    index = i;
+                    break;
+                }
+                else{
+                    flag = "list1失败";
+                };
+            };
+        };
+        if(flag === "list1失败"){
+            for(let i = 0; i < draggable_tag_list.value.length; i++){
+                if(draggable_tag_list.value[i].name === tag_name){
+                    flag = "list2成功";
+                    index = i;
+                    break;
+                }
+                else{
+                    flag = "list2失败";
+                };
+            };
+        };
+        if(flag === "list1成功"){
+            temp0 = showed_draggable_tag_list.value[index];
+            showed_draggable_tag_list.value.splice(index, 1);
+            draggable_tag_list.value.push(temp0);
+        }
+        if(flag === "list2成功") {
+            temp0 = draggable_tag_list.value[index];
+            draggable_tag_list.value.splice(index, 1);
+            showed_draggable_tag_list.value.push(temp0);
+        }
+        showed_draggable_tag_list.value = [...showed_draggable_tag_list.value];
+        draggable_tag_list.value = [...draggable_tag_list.value];
+    };
+
 
     watch(selectedModels, (newVal, oldVal) => {
         function additiveMixColors(color_list: string[]): string {
@@ -461,13 +506,16 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
                 border_color: additiveMixColors(temp_color_list[i])[1],
             })
         }
-        showed_draggable_tag_list.value = [...showed_draggable_tag_list.value]
+        draggable_tag_list.value = [];
+        draggable_tag_list.value = [...draggable_tag_list.value];
+        showed_draggable_tag_list.value = [...showed_draggable_tag_list.value];
 
     })
 
     watch(showed_draggable_tag_list, (newVal, oldVal) => {
     img_len.value = 25.8/newVal.length;
     view_len.value = 26;
+    draggable_tag_list.value = [...draggable_tag_list.value]
 });
 
 
@@ -522,5 +570,6 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         createNewWorkspace,
         refreshNewWorkspaceName,
         removeSelectedNodes,
+        dobleClickToTransferTag,
     };
 });
