@@ -76,6 +76,8 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         'WeClip vs U-net vs DeepLab': 'deeplab_Unet_WeClip',
         'WeClip vs DeepLab vs U-net': 'deeplab_Unet_WeClip',
     });
+    const filter_node_text = ref("");
+    const treeRef = ref<InstanceType<typeof ElTree>>()
 
     // 下面的全是方法
     const _handleFileChange: UploadProps['beforeUpload'] = (file) => {
@@ -159,6 +161,11 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         console.log("打印节点：", node);
     };
 
+
+    const filterNode = (value: string, data: Tree) => {
+  if (!value) return true
+  return data.label.includes(value)
+}
     const removeSelectedNodes = () => {
         selectedNodes.value.forEach((node) => {
             const temp_node = ref<Tree>(
@@ -517,6 +524,9 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
     view_len.value = 26;
     draggable_tag_list.value = [...draggable_tag_list.value]
 });
+    watch(filter_node_text, (val) => {
+  treeRef.value!.filter(val)
+})
 
 
     const isAllChecked = computed(() => selectedModels.value.length === models.value.length);
@@ -561,6 +571,8 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         draggable_tag_list,
         showed_draggable_tag_list,
         mapping_tag_dict,
+        treeRef,
+        filter_node_text,
         renderContent,
         handleCheckChange,
         handleCheckAll,
@@ -571,5 +583,6 @@ export const useInferenceStore = defineStore('useInferenceStore', () => {
         refreshNewWorkspaceName,
         removeSelectedNodes,
         dobleClickToTransferTag,
+        filterNode,
     };
 });

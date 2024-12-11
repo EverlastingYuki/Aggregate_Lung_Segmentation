@@ -5,7 +5,7 @@ import {ElImage} from 'element-plus'
 import {storeToRefs} from 'pinia'
 import {useInferenceStore} from '@/stores/inferenceStore'
 
-import {CirclePlus, Close, Plus, Tools,} from '@element-plus/icons-vue'
+import {CirclePlus, Close, Plus, Tools,Search,} from '@element-plus/icons-vue'
 import {VueDraggable} from 'vue-draggable-plus'
 
 const store = useInferenceStore()
@@ -28,6 +28,8 @@ const {
   draggable_tag_list,
   mapping_tag_dict,
   showed_draggable_tag_list,
+    treeRef,
+        filter_node_text,
 } = storeToRefs(store)
 
 const {
@@ -41,6 +43,7 @@ const {
   refreshNewWorkspaceName,
   removeSelectedNodes,
   dobleClickToTransferTag,
+    filterNode,
 } = store
 
 
@@ -55,7 +58,10 @@ setViewListLength(uped_img_local_path);
             style="border: 2px dashed rgb(159.5, 206.5, 255);border-radius: 3px;padding-top: 2px; max-height: 75vh;flex-direction: column">
       <div
           style="height: 4.5vh;border-bottom: 2px dashed rgb(159.5, 206.5, 255);display: flex;flex-direction: row;justify-content: space-between;padding: 0.5vh">
-        <div style="font-size: 2vh;justify-content: center;align-content: center;color: #409EFF">-工作区</div>
+        <div style="font-size: 2vh;justify-content: center;align-content: center;color: #409EFF">
+          <a>&nbsp;工作区&nbsp;&nbsp;</a>
+          <el-input style="width: 7vw" placeholder="按名称筛选" :prefix-icon="Search" v-model="filter_node_text"/>
+        </div>
         <div style="align-content: center;">
           <el-popover placement="bottom" :width="300" trigger="click" title="新建工作区"
                       @hide="refreshNewWorkspaceName">
@@ -83,6 +89,7 @@ setViewListLength(uped_img_local_path);
       </div>
       <el-scrollbar style="max-height: 66vh">
         <el-tree
+            ref="treeRef"
             style="max-width: 600px"
             :data="workspace"
             show-checkbox
@@ -91,6 +98,7 @@ setViewListLength(uped_img_local_path);
             :expand-on-click-node="false"
             :render-content="renderContent"
             @check-change="handleCheckChange"
+            :filter-node-method="filterNode"
         />
       </el-scrollbar>
     </el-col>
@@ -211,7 +219,7 @@ setViewListLength(uped_img_local_path);
                style="border: 2px dashed rgb(159.5, 206.5, 255);border-radius: 6px;display:flex;flex-direction: row">
 
             <div v-for="(item, index) in showed_draggable_tag_list" :key="index" class="result_v_mod"
-                 :style="{ width: img_len + 'vw', height: img_len*pre_results[mapping_tag_dict[item.name]].length + 'vw' }">
+                 :style="{ width: img_len + 'vw', height: img_len*uped_img_local_path.length + 'vw' }">
               <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
                         v-for="(url, index) in pre_results[mapping_tag_dict[item.name]]"
                         :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
