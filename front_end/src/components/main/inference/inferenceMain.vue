@@ -211,7 +211,7 @@ setViewListLength(uped_img_local_path);
                style="border: 2px dashed rgb(159.5, 206.5, 255);border-radius: 6px;display:flex;flex-direction: row">
 
             <div v-for="(item, index) in showed_draggable_tag_list" :key="index" class="result_v_mod"
-                 :style="{ width: img_len + 'vw', height: view_len + 'vw' }">
+                 :style="{ width: img_len + 'vw', height: img_len*pre_results[mapping_tag_dict[item.name]].length + 'vw' }">
               <el-image :style="{ width: img_len-0.1 + 'vw', height: img_len + 'vw' }"
                         v-for="(url, index) in pre_results[mapping_tag_dict[item.name]]"
                         :key="url" :src="url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2"
