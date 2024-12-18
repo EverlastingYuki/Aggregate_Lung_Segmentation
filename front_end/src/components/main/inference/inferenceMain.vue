@@ -60,7 +60,7 @@ setViewListLength(uped_img_local_path);
           style="height: 4.5vh;border-bottom: 2px dashed rgb(159.5, 206.5, 255);display: flex;flex-direction: row;justify-content: space-between;padding: 0.5vh">
         <div style="font-size: 2vh;justify-content: center;align-content: center;color: #409EFF">
           <a>&nbsp;工作区&nbsp;&nbsp;</a>
-          <el-input style="width: 7vw" placeholder="按名称筛选" :prefix-icon="Search" v-model="filter_node_text"/>
+          <el-input style="width: 6.5vw" placeholder="按名称筛选" :prefix-icon="Search" v-model="filter_node_text"/>
         </div>
         <div style="align-content: center;">
           <el-popover placement="bottom" :width="300" trigger="click" title="新建工作区"
